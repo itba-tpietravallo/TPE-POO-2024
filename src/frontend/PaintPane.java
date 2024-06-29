@@ -29,6 +29,10 @@ public class PaintPane extends BorderPane {
 
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
+
+	// Border dimensions
+	private static final int BORDER_MIN = 0, BORDER_MAX = 10;
+
 	// BackEnd
 	CanvasState<Drawable> canvasState;
 
@@ -36,7 +40,8 @@ public class PaintPane extends BorderPane {
 	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 	Color lineColor = Color.BLACK;
-	Color defaultFillColor = Color.YELLOW;
+	Color defaultFillColor1 = Color.GREEN;
+	Color defaultFillColor2 = Color.BLUE;
 
 	// Botones Barra Izquierda
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -45,11 +50,20 @@ public class PaintPane extends BorderPane {
 	ToggleButton squareButton = new ToggleButton("Cuadrado");
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
-	ChoiceBox<String> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList("Ninguna", "Simple", "Coloreada", "Simple Inversa", "Coloreada Inversa"));
+
+	// Shadow
 	Label shadowLabel = new Label("Sombra");
+	ChoiceBox<String> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList("Ninguna", "Simple", "Coloreada", "Simple Inversa", "Coloreada Inversa"));
 
 	// Selector de color de relleno
-	ColorPicker fillColorPicker = new ColorPicker(defaultFillColor);
+	Label fillLabel = new Label("Relleno");
+	ColorPicker fillColorPicker1 = new ColorPicker(defaultFillColor1);
+	ColorPicker fillColorPicker2 = new ColorPicker(defaultFillColor2);
+
+	// Border
+	Label borderLabel = new Label("Borde");
+	Slider borderWidth = new Slider();
+	ChoiceBox<String> borderOptions = new ChoiceBox<>(FXCollections.observableArrayList("Normal", "P. Simple", "P. Coloreada"));
 
 	// Dibujar una figura
 	Point startPoint;
@@ -73,13 +87,28 @@ public class PaintPane extends BorderPane {
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
+
 		VBox buttonsBox = new VBox(VBOX_SPACING);
 		buttonsBox.getChildren().addAll(toolsArr);
+
 		buttonsBox.getChildren().add(shadowLabel);
 		shadowOptions.setMinWidth(TOOL_MIN_WIDTH);
 		shadowOptions.setValue("Ninguna");
 		buttonsBox.getChildren().add(shadowOptions);
-		buttonsBox.getChildren().add(fillColorPicker);
+
+		buttonsBox.getChildren().add(fillLabel);
+		buttonsBox.getChildren().add(fillColorPicker1);
+		buttonsBox.getChildren().add(fillColorPicker2);
+
+		buttonsBox.getChildren().add(borderLabel);
+		borderWidth.setMin(BORDER_MIN);
+		borderWidth.setMax(BORDER_MAX);
+		borderWidth.setShowTickLabels(true);
+		buttonsBox.getChildren().add(borderWidth);
+		borderOptions.setMinWidth(TOOL_MIN_WIDTH);
+		borderOptions.setValue("Normal");
+		buttonsBox.getChildren().add(borderOptions);
+
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
@@ -115,7 +144,7 @@ public class PaintPane extends BorderPane {
 			} else {
 				return ;
 			}
-			figureColorMap.put(newFigure, fillColorPicker.getValue());
+			figureColorMap.put(newFigure, fillColorPicker1.getValue());
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
