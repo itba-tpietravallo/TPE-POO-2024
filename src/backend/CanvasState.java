@@ -5,7 +5,7 @@ import backend.model.Figure;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CanvasState<T> {
+public class CanvasState<T extends Figure> {
 
     private final List<T> list = new ArrayList<>();
 
