@@ -5,8 +5,8 @@ public class Point {
     private double x, y;
 
     public Point(double x, double y) {
-        setX(x);
-        setY(y);
+        this.x = x;
+        this.y = y;
     }
 
     public double getX() {
@@ -17,12 +17,12 @@ public class Point {
         return y;
     }
 
-    public void setX(double x){
-        this.x = x;
+    public void modifyX(double diff) {
+        x += diff;
     }
 
-    public void setY(double y){
-        this.y = y;
+    public void modifyY(double diff) {
+        y += diff;
     }
 
     @Override
