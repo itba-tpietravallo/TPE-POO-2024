@@ -1,0 +1,9 @@
+# InteliJ IDEA
+/.idea
+*.iml
+
+# Java compilation results
+out
+
+# Vi Buffers
+*.swp
