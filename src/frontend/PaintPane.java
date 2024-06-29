@@ -3,13 +3,12 @@ package frontend;
 import backend.CanvasState;
 import backend.model.*;
 import frontend.drawables.*;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -46,6 +45,8 @@ public class PaintPane extends BorderPane {
 	ToggleButton squareButton = new ToggleButton("Cuadrado");
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
+	ChoiceBox<String> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList("Ninguna", "Simple", "Coloreada", "Simple Inversa", "Coloreada Inversa"));
+	Label shadowLabel = new Label("Sombra");
 
 	// Selector de color de relleno
 	ColorPicker fillColorPicker = new ColorPicker(defaultFillColor);
@@ -74,6 +75,10 @@ public class PaintPane extends BorderPane {
 		}
 		VBox buttonsBox = new VBox(VBOX_SPACING);
 		buttonsBox.getChildren().addAll(toolsArr);
+		buttonsBox.getChildren().add(shadowLabel);
+		shadowOptions.setMinWidth(TOOL_MIN_WIDTH);
+		shadowOptions.setValue("Ninguna");
+		buttonsBox.getChildren().add(shadowOptions);
 		buttonsBox.getChildren().add(fillColorPicker);
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
