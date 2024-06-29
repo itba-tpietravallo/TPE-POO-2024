@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PaintPane<T extends Drawable> extends BorderPane {
+public class PaintPane extends BorderPane {
 	//Canvas dimensions
 	private static final int CANVAS_HEIGHT = 800, CANVAS_WIDTH = 600;
 
@@ -30,7 +30,7 @@ public class PaintPane<T extends Drawable> extends BorderPane {
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
 	// BackEnd
-	CanvasState<T> canvasState;
+	CanvasState<Drawable> canvasState;
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
@@ -63,7 +63,7 @@ public class PaintPane<T extends Drawable> extends BorderPane {
 	// Colores de relleno de cada figura
 	Map<Figure, Color> figureColorMap = new HashMap<>();
 
-	public PaintPane(CanvasState<T> canvasState, StatusPane statusPane) {
+	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
