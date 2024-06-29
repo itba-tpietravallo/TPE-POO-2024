@@ -1,6 +1,6 @@
 package backend.model;
 
-public class Circle extends Ellipse implements Figure {
+public class Circle extends Ellipse {
 
 
     public Circle(Point centerPoint, double radius) {
