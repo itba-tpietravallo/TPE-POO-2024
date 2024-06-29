@@ -159,27 +159,7 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				if(selectedFigure instanceof Rectangle) {
-					Rectangle rectangle = (Rectangle) selectedFigure;
-					rectangle.getTopLeft().modifyX(diffX);
-					rectangle.getBottomRight().modifyX(diffX);
-					rectangle.getTopLeft().modifyY(diffY);
-					rectangle.getBottomRight().modifyY(diffY);
-				} else if(selectedFigure instanceof Circle) {
-					Circle circle = (Circle) selectedFigure;
-					circle.getCenterPoint().modifyX(diffX);
-					circle.getCenterPoint().modifyY(diffY);
-				} else if(selectedFigure instanceof Square) {
-					Square square = (Square) selectedFigure;
-					square.getTopLeft().modifyX(diffX);
-					square.getBottomRight().modifyX(diffX);
-					square.getTopLeft().modifyY(diffY);
-					square.getBottomRight().modifyY(diffY);
-				} else if(selectedFigure instanceof Ellipse) {
-					Ellipse ellipse = (Ellipse) selectedFigure;
-					ellipse.getCenterPoint().modifyX(diffX);
-					ellipse.getCenterPoint().modifyY(diffY);
-				}
+				selectedFigure.move(diffX, diffY);
 				redrawCanvas();
 			}
 		});
@@ -216,12 +196,6 @@ public class PaintPane extends BorderPane {
 				double diameter = circle.getRadius() * 2;
 				gc.fillOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
 				gc.strokeOval(circle.getCenterPoint().getX() - circle.getRadius(), circle.getCenterPoint().getY() - circle.getRadius(), diameter, diameter);
-			} else if(figure instanceof Square) {
-				Square square = (Square) figure;
-				gc.fillRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
-				gc.strokeRect(square.getTopLeft().getX(), square.getTopLeft().getY(),
-						Math.abs(square.getTopLeft().getX() - square.getBottomRight().getX()), Math.abs(square.getTopLeft().getY() - square.getBottomRight().getY()));
 			} else if(figure instanceof Ellipse) {
 				Ellipse ellipse = (Ellipse) figure;
 				gc.strokeOval(ellipse.getCenterPoint().getX() - (ellipse.getsMayorAxis() / 2), ellipse.getCenterPoint().getY() - (ellipse.getsMinorAxis() / 2), ellipse.getsMayorAxis(), ellipse.getsMinorAxis());
