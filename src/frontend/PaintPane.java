@@ -30,7 +30,7 @@ public class PaintPane<T extends Drawable> extends BorderPane {
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
 	// BackEnd
-	CanvasState<Drawable> canvasState;
+	CanvasState<T> canvasState;
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
