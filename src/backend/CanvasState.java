@@ -5,19 +5,19 @@ import backend.model.Figure;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CanvasState {
+public class CanvasState<T> {
 
-    private final List<Figure> list = new ArrayList<>();
+    private final List<T> list = new ArrayList<>();
 
-    public void addFigure(Figure figure) {
+    public void addFigure(T figure) {
         list.add(figure);
     }
 
-    public void deleteFigure(Figure figure) {
+    public void deleteFigure(T figure) {
         list.remove(figure);
     }
 
-    public Iterable<Figure> figures() {
+    public Iterable<T> figures() {
         return new ArrayList<>(list);
     }
 
