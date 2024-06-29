@@ -15,4 +15,9 @@ public class Circle extends Ellipse implements Figure {
         return super.getsMayorAxis();
     }
 
+    @Override
+    public boolean pointBelongs(Point p) {
+        return Math.sqrt(Math.pow(this.getCenterPoint().getX() - p.getX(), 2) +
+                Math.pow(this.getCenterPoint().getY() - p.getY(), 2)) < this.getRadius();
+    }
 }

@@ -18,6 +18,12 @@ public class Rectangle implements Figure {
     }
 
     @Override
+    public boolean pointBelongs(Point p) {
+        return p.getX() > this.getTopLeft().getX() && p.getX() < this.getBottomRight().getX() &&
+                p.getY() > this.getTopLeft().getY() && p.getY() < this.getBottomRight().getY();
+    }
+
+    @Override
     public String toString() {
         return String.format("Rectángulo [ %s , %s ]", topLeft, bottomRight);
     }
