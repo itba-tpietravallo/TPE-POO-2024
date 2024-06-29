@@ -3,6 +3,7 @@ package frontend;
 import backend.CanvasState;
 import backend.model.*;
 import frontend.drawables.*;
+import frontend.features.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -13,8 +14,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -53,7 +56,7 @@ public class PaintPane extends BorderPane {
 
 	// Shadow
 	Label shadowLabel = new Label("Sombra");
-	ChoiceBox<String> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList("Ninguna", "Simple", "Coloreada", "Simple Inversa", "Coloreada Inversa"));
+	ChoiceBox<ShadeType> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList(ShadeType.NOSHADE, ShadeType.SIMPLE, ShadeType.COLORED, ShadeType.SIMPLEINVERTED, ShadeType.COLOREDINVERTED));
 
 	// Selector de color de relleno
 	Label fillLabel = new Label("Relleno");
@@ -75,7 +78,7 @@ public class PaintPane extends BorderPane {
 	StatusPane statusPane;
 
 	// Colores de relleno de cada figura
-	Map<Figure, Color> figureColorMap = new HashMap<>();
+	Map<Figure, FigureFeatures> figureColorMap = new HashMap<>();
 
 	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
@@ -93,7 +96,7 @@ public class PaintPane extends BorderPane {
 
 		buttonsBox.getChildren().add(shadowLabel);
 		shadowOptions.setMinWidth(TOOL_MIN_WIDTH);
-		shadowOptions.setValue("Ninguna");
+		shadowOptions.setValue(ShadeType.NOSHADE);
 		buttonsBox.getChildren().add(shadowOptions);
 
 		buttonsBox.getChildren().add(fillLabel);
@@ -144,7 +147,13 @@ public class PaintPane extends BorderPane {
 			} else {
 				return ;
 			}
-			figureColorMap.put(newFigure, fillColorPicker1.getValue());
+
+			FigureFeatures features = new FigureFeatures(
+					fillColorPicker1.getValue(),
+					shadowOptions.getValue()
+			);
+
+			figureColorMap.put(newFigure, features);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
@@ -219,7 +228,11 @@ public class PaintPane extends BorderPane {
 			} else {
 				gc.setStroke(lineColor);
 			}
-			gc.setFill(figureColorMap.get(figure));
+
+			FigureFeatures features = figureColorMap.get(figure);
+			features.getShade().drawShade(gc, figure, features.getShade().usesDefaultColor() ? Color.GRAY : features.getColor().darker() );
+
+			gc.setFill(features.getColor());
 			figure.draw(gc);
 		}
 	}
