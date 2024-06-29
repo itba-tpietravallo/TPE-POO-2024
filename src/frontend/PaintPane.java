@@ -17,12 +17,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PaintPane extends BorderPane {
+	//Canvas dimensions
+	private static final int CANVAS_HEIGHT = 800, CANVAS_WIDTH = 600;
 
+	//Tool width
+	private static final int TOOL_MIN_WIDTH = 90;
+
+	//VBox features
+	private static final int VBOX_SPACING = 10, VBOX_PREF_WIDTH = 100, VBOX_LINE_WIDTH = 1;
+	private static final String VBOX_BACKGROUND_COLOR = "-fx-background-color: #999";
+
+	//Insets offsets value
+	private static final int OFFSETS_VALUE = 5;
 	// BackEnd
 	CanvasState canvasState;
 
 	// Canvas y relacionados
-	Canvas canvas = new Canvas(800, 600);
+	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 	Color lineColor = Color.BLACK;
 	Color defaultFillColor = Color.YELLOW;
@@ -56,17 +67,17 @@ public class PaintPane extends BorderPane {
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) {
-			tool.setMinWidth(90);
+			tool.setMinWidth(TOOL_MIN_WIDTH);
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
-		VBox buttonsBox = new VBox(10);
+		VBox buttonsBox = new VBox(VBOX_SPACING);
 		buttonsBox.getChildren().addAll(toolsArr);
 		buttonsBox.getChildren().add(fillColorPicker);
-		buttonsBox.setPadding(new Insets(5));
-		buttonsBox.setStyle("-fx-background-color: #999");
-		buttonsBox.setPrefWidth(100);
-		gc.setLineWidth(1);
+		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
+		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
+		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
+		gc.setLineWidth(VBOX_LINE_WIDTH);
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
