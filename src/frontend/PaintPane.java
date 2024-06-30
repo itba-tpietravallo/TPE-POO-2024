@@ -222,8 +222,10 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				selectedFigure.move(diffX, diffY);
-				redrawCanvas();
+				if (selectedFigure != null) {
+					selectedFigure.move(diffX, diffY);
+					redrawCanvas();
+				}
 			}
 		});
 
