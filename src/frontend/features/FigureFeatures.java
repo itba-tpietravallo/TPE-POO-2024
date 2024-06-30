@@ -32,4 +32,24 @@ public class FigureFeatures {
     public Stroke getStroke(){
         return stroke;
     }
+
+    public void setColor1(Color color1) {
+        this.color1 = color1;
+    }
+
+    public void setColor2(Color color2) {
+        this.color2 = color2;
+    }
+
+    public void setShade(Shade shade) {
+        this.shade = shade;
+    }
+
+    public void setStrokeWidth(double strokeWidth) {
+        this.strokeWidth = strokeWidth;
+    }
+
+    public void setStroke(Stroke stroke) {
+        this.stroke = stroke;
+    }
 }
