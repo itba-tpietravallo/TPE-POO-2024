@@ -31,8 +31,8 @@ public class PaintPane extends BorderPane {
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
 
-	// Border dimensions
-	private static final int BORDER_MIN = 0, BORDER_MAX = 10;
+	// Stroke dimensions
+	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
 
 	// BackEnd
 	CanvasState<Drawable> canvasState;
@@ -40,9 +40,8 @@ public class PaintPane extends BorderPane {
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
-	Color lineColor = Color.BLACK;
-	Color defaultFillColor1 = Color.GREEN;
-	Color defaultFillColor2 = Color.BLUE;
+	Color defaultFillColor1 = Color.CYAN;
+	Color defaultFillColor2 = Color.MAGENTA;
 
 	// Botones Barra Izquierda
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -62,9 +61,9 @@ public class PaintPane extends BorderPane {
 	ColorPicker fillColorPicker2 = new ColorPicker(defaultFillColor2);
 
 	// Border
-	Label borderLabel = new Label("Borde");
-	Slider borderWidth = new Slider();
-	ChoiceBox<String> borderOptions = new ChoiceBox<>(FXCollections.observableArrayList("Normal", "P. Simple", "P. Coloreada"));
+	Label strokeLabel = new Label("Borde");
+	Slider strokeWidth = new Slider();
+	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
 
 	// Dibujar una figura
 	Point startPoint;
@@ -76,7 +75,7 @@ public class PaintPane extends BorderPane {
 	StatusPane statusPane;
 
 	// Colores de relleno de cada figura
-	Map<Figure, FigureFeatures> figureColorMap = new HashMap<>();
+	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
 
 	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
@@ -101,14 +100,14 @@ public class PaintPane extends BorderPane {
 		buttonsBox.getChildren().add(fillColorPicker1);
 		buttonsBox.getChildren().add(fillColorPicker2);
 
-		buttonsBox.getChildren().add(borderLabel);
-		borderWidth.setMin(BORDER_MIN);
-		borderWidth.setMax(BORDER_MAX);
-		borderWidth.setShowTickLabels(true);
-		buttonsBox.getChildren().add(borderWidth);
-		borderOptions.setMinWidth(TOOL_MIN_WIDTH);
-		borderOptions.setValue("Normal");
-		buttonsBox.getChildren().add(borderOptions);
+		buttonsBox.getChildren().add(strokeLabel);
+		strokeWidth.setMin(STROKE_MIN);
+		strokeWidth.setMax(STROKE_MAX);
+		strokeWidth.setShowTickLabels(true);
+		buttonsBox.getChildren().add(strokeWidth);
+		strokeOptions.setMinWidth(TOOL_MIN_WIDTH);
+		strokeOptions.setValue(Stroke.NORMAL);
+		buttonsBox.getChildren().add(strokeOptions);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
@@ -149,10 +148,12 @@ public class PaintPane extends BorderPane {
 			FigureFeatures features = new FigureFeatures(
 					fillColorPicker1.getValue(),
 					fillColorPicker2.getValue(),
-					shadowOptions.getValue()
+					shadowOptions.getValue(),
+					strokeWidth.getValue(),
+					strokeOptions.getValue()
 			);
 
-			figureColorMap.put(newFigure, features);
+			figureFeaturesMap.put(newFigure, features);
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
@@ -223,7 +224,7 @@ public class PaintPane extends BorderPane {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : canvasState.figures()) {
 			// Get all the figures features
-			FigureFeatures features = figureColorMap.get(figure);
+			FigureFeatures features = figureFeaturesMap.get(figure);
 
 			// Draw the corresponding shade type
 			features.getShade().drawShade(gc, figure, features.getColor1() );
@@ -231,12 +232,8 @@ public class PaintPane extends BorderPane {
 			// Set the gradient fill
 			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
 
-			// Set outline
-			if(figure == selectedFigure) {
-				gc.setStroke(Color.RED);
-			} else {
-				gc.setStroke(lineColor);
-			}
+			// Set stroke
+			features.getStroke().setStroke(gc, features.getStrokeWidth(), figure == selectedFigure);
 
 			// Draw the figure
 			figure.draw(gc);

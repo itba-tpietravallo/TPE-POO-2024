@@ -14,6 +14,7 @@ public enum Shade {
     COLORED(10, false, "Coloreada"),
     COLOREDINVERTED(-10, false, "Coloreada inversa") ;
     private static final Color DEFAULT_COLOR = Color.GRAY;
+    private static final Stroke SHADE_STROKE = Stroke.NOSTROKE;
     private final int offset;
     private final boolean useDefaultColor;
     private final String name;
@@ -27,6 +28,7 @@ public enum Shade {
     public void drawShade(GraphicsContext gc, Drawable figure, Color figureColor) {
         gc.setFill( this.useDefaultColor ? DEFAULT_COLOR : figureColor.darker());
         figure.move(this.offset, this.offset);
+        SHADE_STROKE.setStroke(gc);
         figure.draw(gc);
         figure.move(-this.offset, -this.offset);
     }
