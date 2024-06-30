@@ -1,8 +1,8 @@
 package frontend.drawables;
 
-import backend.model.Figure;
 import javafx.scene.canvas.GraphicsContext;
 
-public interface Drawable extends Figure {
+public interface Drawable extends Colorable {
     void draw(GraphicsContext gc);
 }
+

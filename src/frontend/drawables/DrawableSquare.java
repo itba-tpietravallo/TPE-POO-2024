@@ -4,7 +4,7 @@ import backend.model.Point;
 import backend.model.Square;
 import javafx.scene.canvas.GraphicsContext;
 
-public class DrawableSquare extends Square implements Drawable {
+public class DrawableSquare extends Square implements LinearlyColored, Drawable {
     public DrawableSquare(Point topLeft, double size) {
         super(topLeft, size);
     }
