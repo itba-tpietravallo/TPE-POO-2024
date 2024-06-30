@@ -29,12 +29,6 @@ public class Rectangle implements Figure, Movable {
     }
 
     @Override
-    public void move(double diffX, double diffY) {
-        this.getTopLeft().move(diffX, diffY);
-        this.getBottomRight().move(diffX, diffY);
-    }
-
-    @Override
     public void moveTo(double x, double y) {
         double sizeX = sizeX();
         double sizeY = sizeY();
@@ -42,11 +36,22 @@ public class Rectangle implements Figure, Movable {
         this.getBottomRight().moveTo(x + sizeX / 2, y + sizeY / 2);
     }
 
-    private double sizeX() {
+    @Override
+    // Returns the X coordinate of the rectangle's center
+    public double getX() {
+        return this.getTopLeft().getX() + sizeX() / 2;
+    }
+
+    // Returns the Y coordinate of the rectangle's center
+    public double getY() {
+        return this.getTopLeft().getY() + sizeY() / 2;
+    }
+
+    public double sizeX() {
         return this.getBottomRight().getX() - this.getTopLeft().getX();
     }
 
-    private double sizeY(){
+    public double sizeY(){
         return this.getBottomRight().getY() - this.getTopLeft().getY();
     }
 }

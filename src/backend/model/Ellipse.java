@@ -33,15 +33,19 @@ public class Ellipse implements Figure {
         return ((Math.pow(p.getX() - this.getCenterPoint().getX(), 2) / Math.pow(this.getsMayorAxis(), 2)) +
                 (Math.pow(p.getY() - this.getCenterPoint().getY(), 2) / Math.pow(this.getsMinorAxis(), 2))) <= 0.30;
     }
-    @Override
-    public void move(double diffX, double diffY) {
-        this.getCenterPoint().move(diffX, diffY);
-    }
 
     @Override
     public void moveTo(double x, double y) {
         this.getCenterPoint().moveTo(x,y);
     }
 
+    @Override
+    public double getX() {
+        return this.getCenterPoint().getX();
+    }
 
+    @Override
+    public double getY() {
+        return this.getCenterPoint().getY();
+    }
 }
