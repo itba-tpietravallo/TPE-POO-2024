@@ -14,8 +14,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.function.BiFunction;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -85,11 +88,21 @@ public class PaintPane extends BorderPane {
 
 	// Colores de relleno de cada figura
 	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
+	Map<ToggleButton, BiFunction<Point, Point, Drawable>> figureButtons = Map.ofEntries(
+			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
+			Map.entry(circleButton,		DrawableCircle::createFromPoints),
+			Map.entry(squareButton, 	DrawableSquare::createFromPoints),
+			Map.entry(ellipseButton, 	DrawableEllipse::createFromPoints)
+	);
 
 	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
-		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
+		List<ToggleButton> toolsArr = new ArrayList<>();
+		toolsArr.add(selectionButton);
+		toolsArr.addAll(figureButtons.keySet());
+		toolsArr.add(deleteButton);
+
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) {
 			tool.setMinWidth(TOOL_MIN_WIDTH);
@@ -139,30 +152,25 @@ public class PaintPane extends BorderPane {
 
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
+
 			if(startPoint == null) {
 				return ;
 			}
+
 			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
 				return ;
 			}
+
 			Drawable newFigure = null;
-			if(rectangleButton.isSelected()) {
-				newFigure = new DrawableRectangle(startPoint, endPoint);
+
+			for (Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>> e : figureButtons.entrySet()) {
+				if (e.getKey().isSelected()) {
+					newFigure = e.getValue().apply(startPoint, endPoint);
+					break;
+				}
 			}
-			else if(circleButton.isSelected()) {
-				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new DrawableCircle(startPoint, circleRadius);
-			} else if(squareButton.isSelected()) {
-				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new DrawableSquare(startPoint, size);
-			} else if(ellipseButton.isSelected()) {
-				Point centerPoint = new Point(Math.abs(endPoint.getX() + startPoint.getX()) / 2, (Math.abs((endPoint.getY() + startPoint.getY())) / 2));
-				double sMayorAxis = Math.abs(endPoint.getX() - startPoint.getX());
-				double sMinorAxis = Math.abs(endPoint.getY() - startPoint.getY());
-				newFigure = new DrawableEllipse(centerPoint, sMayorAxis, sMinorAxis);
-			} else {
-				return ;
-			}
+
+			if (newFigure == null) return;
 
 			FigureFeatures features = new FigureFeatures(
 					fillColorPicker1.getValue(),

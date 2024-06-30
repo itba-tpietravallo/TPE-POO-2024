@@ -21,4 +21,9 @@ public class DrawableCircle extends Circle implements RadiallyColored {
     public Paint getFill(Color color1, Color color2) {
         return RadiallyColored.super.getFill(color1, color2);
     }
+
+    public static DrawableCircle createFromPoints(Point start, Point end) {
+        double circleRadius = Math.abs(end.getX() - start.getX());
+        return new DrawableCircle(start, circleRadius);
+    }
 }
