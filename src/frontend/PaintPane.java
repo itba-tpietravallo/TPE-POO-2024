@@ -66,6 +66,15 @@ public class PaintPane extends BorderPane {
 	Slider borderWidth = new Slider();
 	ChoiceBox<String> borderOptions = new ChoiceBox<>(FXCollections.observableArrayList("Normal", "P. Simple", "P. Coloreada"));
 
+	Label actionLabel = new Label("Acciones");
+
+	ToggleButton duplicateButton = new ToggleButton("Duplicar");
+
+	ToggleButton divideButton = new ToggleButton("Dividir");
+
+	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+
+
 	// Dibujar una figura
 	Point startPoint;
 
@@ -75,7 +84,7 @@ public class PaintPane extends BorderPane {
 	// StatusBar
 	StatusPane statusPane;
 
-	// Colores de relleno de cada figura
+	// Colores de relleno de cada figura todo cambiar nombre
 	Map<Figure, FigureFeatures> figureColorMap = new HashMap<>();
 
 	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
@@ -109,6 +118,16 @@ public class PaintPane extends BorderPane {
 		borderOptions.setMinWidth(TOOL_MIN_WIDTH);
 		borderOptions.setValue("Normal");
 		buttonsBox.getChildren().add(borderOptions);
+
+		buttonsBox.getChildren().add(actionLabel);
+		ToggleButton[] actionsArr = {duplicateButton, divideButton, moveToCenterButton};
+		ToggleGroup actions = new ToggleGroup();
+		for (ToggleButton actionButton : actionsArr) {
+			actionButton.setMinWidth(TOOL_MIN_WIDTH); // todo agrego un "ACTION_MIN_WIDTH" (que seria el mismo valor)
+			actionButton.setToggleGroup(actions);     // todo o lo dejo asi?
+			actionButton.setCursor(Cursor.HAND);
+		}
+		buttonsBox.getChildren().addAll(actionsArr);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
