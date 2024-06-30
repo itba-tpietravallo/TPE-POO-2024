@@ -14,10 +14,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class PaintPane extends BorderPane {
@@ -82,7 +79,7 @@ public class PaintPane extends BorderPane {
 	Point startPoint;
 
 	// Seleccionar una figura
-	Drawable selectedFigure;
+	Optional<Drawable> selectedFigure = Optional.empty();
 
 	// StatusBar
 	StatusPane statusPane;
@@ -212,14 +209,14 @@ public class PaintPane extends BorderPane {
 				for (Drawable figure : canvasState.figures()) {
 					if(figure.pointBelongs(eventPoint)) {
 						found = true;
-						selectedFigure = figure;
+						selectedFigure = Optional.of(figure);
 						label.append(figure.toString());
 					}
 				}
 				if (found) {
 					statusPane.updateStatus(label.toString());
 				} else {
-					selectedFigure = null;
+					selectedFigure = Optional.empty();
 					statusPane.updateStatus("Ninguna figura encontrada");
 				}
 				redrawCanvas();
@@ -231,70 +228,63 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				if (selectedFigure != null) {
-					selectedFigure.move(diffX, diffY);
-					redrawCanvas();
-				}
+				selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
 			}
 		});
 
 		deleteButton.setOnAction(event -> {
-			if (selectedFigure != null) {
-				canvasState.deleteFigure(selectedFigure);
-				selectedFigure = null;
+			selectedFigure.ifPresent(f -> {
+				canvasState.deleteFigure(f);
+				selectedFigure = Optional.empty();
 				redrawCanvas();
-			}
+			});
 		});
 
 		fillColorPicker1.setOnAction(event ->{
-			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setColor1(fillColorPicker1.getValue());
-			}
-			redrawCanvas();
+			selectedFigure.ifPresent(f -> {
+				figureFeaturesMap.get(f).setColor1(fillColorPicker1.getValue());
+				redrawCanvas();
+			});
 		});
-		// todo se podrá hacer una sola función y llamarla dos veces ?????
+
 		fillColorPicker2.setOnAction(event ->{
-			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setColor2(fillColorPicker2.getValue());
-			}
-			redrawCanvas();
+			selectedFigure.ifPresent(f -> {
+				figureFeaturesMap.get(f).setColor1(fillColorPicker2.getValue());
+				redrawCanvas();
+			});
 		});
+
 		shadowOptions.setOnAction(event -> {
-			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setShade(shadowOptions.getValue());
-			}
-			redrawCanvas();
+			selectedFigure.ifPresent(f -> {
+				figureFeaturesMap.get(f).setShade(shadowOptions.getValue());
+				figureFeaturesMap.get(f).setStroke(strokeOptions.getValue());
+				redrawCanvas();
+			});
 		});
-		strokeOptions.setOnAction(event -> {
-			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setStroke(strokeOptions.getValue());
-			}
-			redrawCanvas();
-		});
+
 		strokeWidth.setOnMouseDragged(event -> {
-			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setStrokeWidth(strokeWidth.getValue());
-			}
-			redrawCanvas();
+			selectedFigure.ifPresent(f -> {
+				figureFeaturesMap.get(f).setStrokeWidth(strokeWidth.getValue());
+				redrawCanvas();
+			});
 		});
 
 		duplicateButton.setOnAction(event -> {
-			if (selectedFigure != null) {
-				Drawable duplicatedFigure = selectedFigure.getCopy();
+			selectedFigure.ifPresent(f -> {
+				Drawable duplicatedFigure = f.getCopy();
 				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(selectedFigure).getCopy());
+				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f));
 				canvasState.addFigure(duplicatedFigure);
 				redrawCanvas();
-			}
+			});
 		});
 
 		moveToCenterButton.setOnAction(event -> {
-			if (selectedFigure != null) {
-				selectedFigure.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+			selectedFigure.ifPresent(f -> {
+				f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
 				redrawCanvas();
-			}
+			});
 		});
-
 
 		setLeft(buttonsBox);
 		setRight(canvas);
@@ -313,7 +303,7 @@ public class PaintPane extends BorderPane {
 			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
 
 			// Set stroke
-			features.getStroke().setStroke(gc, features.getStrokeWidth(), figure == selectedFigure);
+			features.getStroke().setStroke(gc, features.getStrokeWidth(), selectedFigure.isPresent() && selectedFigure.get().equals(figure) );
 
 			// Draw the figure
 			figure.draw(gc);
