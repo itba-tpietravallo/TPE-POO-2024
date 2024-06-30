@@ -14,10 +14,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -56,7 +54,7 @@ public class PaintPane extends BorderPane {
 
 	// Shadow
 	Label shadowLabel = new Label("Sombra");
-	ChoiceBox<ShadeType> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList(ShadeType.NOSHADE, ShadeType.SIMPLE, ShadeType.COLORED, ShadeType.SIMPLEINVERTED, ShadeType.COLOREDINVERTED));
+	ChoiceBox<Shade> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
 
 	// Selector de color de relleno
 	Label fillLabel = new Label("Relleno");
@@ -96,7 +94,7 @@ public class PaintPane extends BorderPane {
 
 		buttonsBox.getChildren().add(shadowLabel);
 		shadowOptions.setMinWidth(TOOL_MIN_WIDTH);
-		shadowOptions.setValue(ShadeType.NOSHADE);
+		shadowOptions.setValue(Shade.NOSHADE);
 		buttonsBox.getChildren().add(shadowOptions);
 
 		buttonsBox.getChildren().add(fillLabel);
@@ -150,6 +148,7 @@ public class PaintPane extends BorderPane {
 
 			FigureFeatures features = new FigureFeatures(
 					fillColorPicker1.getValue(),
+					fillColorPicker2.getValue(),
 					shadowOptions.getValue()
 			);
 
@@ -223,16 +222,23 @@ public class PaintPane extends BorderPane {
 	void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : canvasState.figures()) {
+			// Get all the figures features
+			FigureFeatures features = figureColorMap.get(figure);
+
+			// Draw the corresponding shade type
+			features.getShade().drawShade(gc, figure, features.getColor1() );
+
+			// Set the gradient fill
+			gc.setFill(features.getColor1());
+
+			// Set outline
 			if(figure == selectedFigure) {
 				gc.setStroke(Color.RED);
 			} else {
 				gc.setStroke(lineColor);
 			}
 
-			FigureFeatures features = figureColorMap.get(figure);
-			features.getShade().drawShade(gc, figure, features.getShade().usesDefaultColor() ? Color.GRAY : features.getColor().darker() );
-
-			gc.setFill(features.getColor());
+			// Draw the figure
 			figure.draw(gc);
 		}
 	}

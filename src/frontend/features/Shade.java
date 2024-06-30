@@ -4,10 +4,7 @@ import frontend.drawables.Drawable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
-public enum ShadeType {
+public enum Shade {
 
     NOSHADE(0, true) {
         @Override
@@ -42,22 +39,20 @@ public enum ShadeType {
         }
     };
 
-    ShadeType(int offset, boolean useDefaultColor) {
+    Shade(int offset, boolean useDefaultColor) {
         this.offset = offset;
-        this.defaultColor = useDefaultColor;
+        this.useDefaultColor = useDefaultColor;
     }
 
+    private static final Color DEFAULT_COLOR = Color.GRAY;
     private final int offset;
-    private final boolean defaultColor;
+    private final boolean useDefaultColor;
 
-    public void drawShade(GraphicsContext gc, Drawable figure, Color color) {
-        gc.setFill(color);
+    public void drawShade(GraphicsContext gc, Drawable figure, Color figureColor) {
+        gc.setFill( this.useDefaultColor ? DEFAULT_COLOR : figureColor.darker());
         figure.move(this.offset, this.offset);
         figure.draw(gc);
         figure.move(-this.offset, -this.offset);
     }
 
-    public boolean usesDefaultColor() {
-        return this.defaultColor;
-    };
 }
