@@ -20,4 +20,9 @@ public class DrawableRectangle extends Rectangle implements LinearlyColored {
     public static DrawableRectangle createFromPoints(Point start, Point end) {
         return new DrawableRectangle(start, end);
     }
+
+    @Override
+    public Drawable getCopy(){
+        return new DrawableRectangle(super.getTopLeft(), super.getBottomRight());
+    }
 }

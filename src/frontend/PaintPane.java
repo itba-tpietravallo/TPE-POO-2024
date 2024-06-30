@@ -68,12 +68,10 @@ public class PaintPane extends BorderPane {
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
 
+	// Actions
 	Label actionLabel = new Label("Acciones");
-
 	ToggleButton duplicateButton = new ToggleButton("Duplicar");
-
 	ToggleButton divideButton = new ToggleButton("Dividir");
-
 	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
 
 
@@ -277,7 +275,16 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-
+		duplicateButton.setOnAction(event -> {
+			if (selectedFigure != null) {
+				Drawable duplicatedFigure = selectedFigure.getCopy();
+				duplicatedFigure.move(12, 12);
+				duplicatedFigure.draw(gc);
+				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(selectedFigure));
+				canvasState.addFigure(duplicatedFigure);
+			}
+			redrawCanvas();
+		});
 
 
 

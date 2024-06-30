@@ -26,4 +26,9 @@ public class DrawableCircle extends Circle implements RadiallyColored {
         double circleRadius = Math.abs(end.getX() - start.getX());
         return new DrawableCircle(start, circleRadius);
     }
+
+    @Override
+    public Drawable getCopy(){
+        return new DrawableCircle(super.getCenterPoint(), super.getRadius());
+    }
 }

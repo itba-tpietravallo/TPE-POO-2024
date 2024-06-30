@@ -8,5 +8,6 @@ import javafx.scene.paint.Paint;
 public interface Drawable extends Figure {
     void draw(GraphicsContext gc);
     Paint getFill(Color color1, Color color2);
+    Drawable getCopy();
 }
 

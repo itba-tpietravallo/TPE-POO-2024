@@ -21,4 +21,9 @@ public class DrawableSquare extends Square implements LinearlyColored {
         double size = Math.abs(end.getX() - start.getX());
         return new DrawableSquare(start, size);
     }
+
+    @Override
+    public Drawable getCopy(){
+        return new DrawableSquare(super.getTopLeft(), super.getBottomRight().getX() - super.getTopLeft().getX());
+    }
 }
