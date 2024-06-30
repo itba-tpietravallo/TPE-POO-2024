@@ -79,7 +79,7 @@ public class PaintPane extends BorderPane {
 	Point startPoint;
 
 	// Seleccionar una figura
-	Optional<Drawable> selectedFigure;
+	Optional<Drawable> selectedFigure = Optional.empty();
 
 	// StatusBar
 	StatusPane statusPane;
@@ -303,7 +303,7 @@ public class PaintPane extends BorderPane {
 			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
 
 			// Set stroke
-			features.getStroke().setStroke(gc, features.getStrokeWidth(), figure == selectedFigure);
+			features.getStroke().setStroke(gc, features.getStrokeWidth(), selectedFigure.isPresent() && selectedFigure.get().equals(figure) );
 
 			// Draw the figure
 			figure.draw(gc);
