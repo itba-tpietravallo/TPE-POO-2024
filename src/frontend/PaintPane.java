@@ -262,9 +262,9 @@ public class PaintPane extends BorderPane {
 			}
 			redrawCanvas();
 		});
-		strokeWidth.setOnMouseReleased(event -> {
+		strokeWidth.setOnMouseDragged(event -> {
 			if (selectedFigure != null) {
-				figureFeaturesMap.get(selectedFigure).setStrokeWidth(strokeWidth.getWidth());
+				figureFeaturesMap.get(selectedFigure).setStrokeWidth(strokeWidth.getValue());
 			}
 			redrawCanvas();
 		});
