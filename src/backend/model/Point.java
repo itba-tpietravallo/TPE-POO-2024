@@ -26,8 +26,13 @@ public class Point implements Movable {
     }
 
     public void move(double diffX, double diffY) {
-        this.x += diffX;
-        this.y += diffY;
+        this.moveTo(this.x + diffX, this.y + diffY);
+    }
+
+    @Override
+    public void moveTo(double x, double y) {
+        this.x = x;
+        this.y = y;
     }
 
     @Override

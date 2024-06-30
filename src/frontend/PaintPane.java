@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
-	private static final int CANVAS_HEIGHT = 800, CANVAS_WIDTH = 600;
+	private static final int CANVAS_WIDTH = 800, CANVAS_HEIGHT = 600;
 
 	//Tool width
 	private static final int TOOL_MIN_WIDTH = 90;
@@ -41,7 +41,7 @@ public class PaintPane extends BorderPane {
 	CanvasState<Drawable> canvasState;
 
 	// Canvas y relacionados
-	Canvas canvas = new Canvas(CANVAS_HEIGHT, CANVAS_WIDTH);
+	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 	Color defaultFillColor1 = Color.CYAN;
 	Color defaultFillColor2 = Color.web("ccffcc");
@@ -286,6 +286,12 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
+		moveToCenterButton.setOnAction(event -> {
+			if (selectedFigure != null) {
+				selectedFigure.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+				redrawCanvas();
+			}
+		});
 
 
 		setLeft(buttonsBox);

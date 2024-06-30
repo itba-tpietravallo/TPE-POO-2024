@@ -33,4 +33,20 @@ public class Rectangle implements Figure, Movable {
         this.getTopLeft().move(diffX, diffY);
         this.getBottomRight().move(diffX, diffY);
     }
+
+    @Override
+    public void moveTo(double x, double y) {
+        double sizeX = sizeX();
+        double sizeY = sizeY();
+        this.getTopLeft().moveTo(x - sizeX / 2, y - sizeY / 2);
+        this.getBottomRight().moveTo(x + sizeX / 2, y + sizeY / 2);
+    }
+
+    private double sizeX() {
+        return this.getBottomRight().getX() - this.getTopLeft().getX();
+    }
+
+    private double sizeY(){
+        return this.getBottomRight().getY() - this.getTopLeft().getY();
+    }
 }
