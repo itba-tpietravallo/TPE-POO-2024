@@ -135,8 +135,8 @@ public class PaintPane extends BorderPane {
 		ToggleButton[] actionsArr = {duplicateButton, divideButton, moveToCenterButton};
 		ToggleGroup actions = new ToggleGroup();
 		for (ToggleButton actionButton : actionsArr) {
-			actionButton.setMinWidth(TOOL_MIN_WIDTH); // todo agrego un "ACTION_MIN_WIDTH" (que seria el mismo valor)
-			actionButton.setToggleGroup(actions);     // todo o lo dejo asi?
+			actionButton.setMinWidth(TOOL_MIN_WIDTH);
+			actionButton.setToggleGroup(actions);
 			actionButton.setCursor(Cursor.HAND);
 		}
 		buttonsBox.getChildren().addAll(actionsArr);
@@ -230,8 +230,10 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				selectedFigure.move(diffX, diffY);
-				redrawCanvas();
+				if (selectedFigure != null) {
+					selectedFigure.move(diffX, diffY);
+					redrawCanvas();
+				}
 			}
 		});
 
@@ -242,6 +244,42 @@ public class PaintPane extends BorderPane {
 				redrawCanvas();
 			}
 		});
+
+		fillColorPicker1.setOnAction(event ->{
+			if (selectedFigure != null) {
+				figureFeaturesMap.get(selectedFigure).setColor1(fillColorPicker1.getValue());
+			}
+			redrawCanvas();
+		});
+		// todo se podrá hacer una sola función y llamarla dos veces ?????
+		fillColorPicker2.setOnAction(event ->{
+			if (selectedFigure != null) {
+				figureFeaturesMap.get(selectedFigure).setColor2(fillColorPicker2.getValue());
+			}
+			redrawCanvas();
+		});
+		shadowOptions.setOnAction(event -> {
+			if (selectedFigure != null) {
+				figureFeaturesMap.get(selectedFigure).setShade(shadowOptions.getValue());
+			}
+			redrawCanvas();
+		});
+		strokeOptions.setOnAction(event -> {
+			if (selectedFigure != null) {
+				figureFeaturesMap.get(selectedFigure).setStroke(strokeOptions.getValue());
+			}
+			redrawCanvas();
+		});
+		strokeWidth.setOnMouseDragged(event -> {
+			if (selectedFigure != null) {
+				figureFeaturesMap.get(selectedFigure).setStrokeWidth(strokeWidth.getValue());
+			}
+			redrawCanvas();
+		});
+
+
+
+
 
 		setLeft(buttonsBox);
 		setRight(canvas);
