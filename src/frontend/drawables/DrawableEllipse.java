@@ -24,6 +24,6 @@ public class DrawableEllipse extends Ellipse implements RadiallyColored {
 
     @Override
     public Drawable getCopy(){
-        return new DrawableEllipse(super.getCenterPoint(), super.getsMayorAxis(), super.getsMinorAxis());
+        return new DrawableEllipse(this.getCenterPoint().getCopy(), this.getsMayorAxis(), this.getsMinorAxis());
     }
 }

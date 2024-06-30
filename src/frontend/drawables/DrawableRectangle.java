@@ -23,6 +23,6 @@ public class DrawableRectangle extends Rectangle implements LinearlyColored {
 
     @Override
     public Drawable getCopy(){
-        return new DrawableRectangle(super.getTopLeft(), super.getBottomRight());
+        return new DrawableRectangle(this.getTopLeft().getCopy(), this.getBottomRight().getCopy());
     }
 }

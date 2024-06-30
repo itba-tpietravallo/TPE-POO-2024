@@ -37,6 +37,9 @@ public class PaintPane extends BorderPane {
 	// Stroke dimensions
 	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
 
+	// Duplicate offset
+	private static final int DUPLICATE_OFFSET = 12;
+
 	// BackEnd
 	CanvasState<Drawable> canvasState;
 
@@ -278,12 +281,11 @@ public class PaintPane extends BorderPane {
 		duplicateButton.setOnAction(event -> {
 			if (selectedFigure != null) {
 				Drawable duplicatedFigure = selectedFigure.getCopy();
-				duplicatedFigure.move(12, 12);
-				duplicatedFigure.draw(gc);
-				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(selectedFigure));
+				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
+				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(selectedFigure).getCopy());
 				canvasState.addFigure(duplicatedFigure);
+				redrawCanvas();
 			}
-			redrawCanvas();
 		});
 
 		moveToCenterButton.setOnAction(event -> {

@@ -52,4 +52,7 @@ public class FigureFeatures {
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
+    public FigureFeatures getCopy(){
+        return new FigureFeatures(color1, color2, shade, strokeWidth, stroke);
+    }
 }

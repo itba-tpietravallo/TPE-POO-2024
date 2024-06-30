@@ -29,6 +29,6 @@ public class DrawableCircle extends Circle implements RadiallyColored {
 
     @Override
     public Drawable getCopy(){
-        return new DrawableCircle(super.getCenterPoint(), super.getRadius());
+        return new DrawableCircle(this.getCenterPoint().getCopy(), this.getRadius());
     }
 }

@@ -35,6 +35,10 @@ public class Point implements Movable {
         this.y = y;
     }
 
+    public Point getCopy(){
+        return new Point(x, y);
+    }
+
     @Override
     public String toString() {
         return String.format("{%.2f , %.2f}", x, y);
