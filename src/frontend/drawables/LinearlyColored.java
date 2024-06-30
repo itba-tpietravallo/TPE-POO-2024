@@ -2,7 +2,7 @@ package frontend.drawables;
 
 import javafx.scene.paint.*;
 
-public interface LinearlyColored extends Colorable {
+public interface LinearlyColored extends Drawable {
     @Override
     default Paint getFill(Color color1, Color color2) {
         return new LinearGradient(0, 0, 1, 0, true,

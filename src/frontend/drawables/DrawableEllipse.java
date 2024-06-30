@@ -4,7 +4,7 @@ import backend.model.Ellipse;
 import backend.model.Point;
 import javafx.scene.canvas.GraphicsContext;
 
-public class DrawableEllipse extends Ellipse implements RadiallyColored, Drawable {
+public class DrawableEllipse extends Ellipse implements RadiallyColored {
     public DrawableEllipse(Point centerPoint, double sMayorAxis, double sMinorAxis) {
         super(centerPoint, sMayorAxis, sMinorAxis);
     }

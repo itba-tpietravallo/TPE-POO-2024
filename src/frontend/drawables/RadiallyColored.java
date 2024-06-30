@@ -1,7 +1,7 @@
 package frontend.drawables;
 import javafx.scene.paint.*;
 
-public interface RadiallyColored extends Colorable {
+public interface RadiallyColored extends Drawable {
     @Override
     default Paint getFill(Color color1, Color color2) {
         return new RadialGradient(0, 0, 0.5, 0.5, 0.5, true,
