@@ -229,7 +229,7 @@ public class PaintPane extends BorderPane {
 			features.getShade().drawShade(gc, figure, features.getColor1() );
 
 			// Set the gradient fill
-			gc.setFill(features.getColor1());
+			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
 
 			// Set outline
 			if(figure == selectedFigure) {
