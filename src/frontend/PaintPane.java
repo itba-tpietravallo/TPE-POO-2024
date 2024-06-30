@@ -65,6 +65,15 @@ public class PaintPane extends BorderPane {
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
 
+	Label actionLabel = new Label("Acciones");
+
+	ToggleButton duplicateButton = new ToggleButton("Duplicar");
+
+	ToggleButton divideButton = new ToggleButton("Dividir");
+
+	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+
+
 	// Dibujar una figura
 	Point startPoint;
 
@@ -108,6 +117,16 @@ public class PaintPane extends BorderPane {
 		strokeOptions.setMinWidth(TOOL_MIN_WIDTH);
 		strokeOptions.setValue(Stroke.NORMAL);
 		buttonsBox.getChildren().add(strokeOptions);
+
+		buttonsBox.getChildren().add(actionLabel);
+		ToggleButton[] actionsArr = {duplicateButton, divideButton, moveToCenterButton};
+		ToggleGroup actions = new ToggleGroup();
+		for (ToggleButton actionButton : actionsArr) {
+			actionButton.setMinWidth(TOOL_MIN_WIDTH); // todo agrego un "ACTION_MIN_WIDTH" (que seria el mismo valor)
+			actionButton.setToggleGroup(actions);     // todo o lo dejo asi?
+			actionButton.setCursor(Cursor.HAND);
+		}
+		buttonsBox.getChildren().addAll(actionsArr);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);

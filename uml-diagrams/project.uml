@@ -1,0 +1,169 @@
+@startuml
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor black
+title
+ <u>TPE-POO-2024 UML Diagram</u>
+ Tomas Pietravallo, Lucia Oliveto, Maximo Wehncke
+end title
+
+package "Backend" {
+    class Point {
+        double x;
+        double y;
+    }
+
+    interface Figure {
+        +boolean pointBelongs(Point p)
+    }
+
+    interface Movable {
+        +void move(double diffX, double diffY)
+    }
+
+    class Rectangle {
+        +Point getTopLeft();
+        +Point getBottomRight();
+        +String toString();
+    }
+
+    class Square {
+        +String toString();
+    }
+
+    class Ellipse {
+        +Point getCenterPoint();
+        +double getsMayorAxis();
+        +double getsMinorAxis();
+        +double getRadius();
+        +String toString();
+    }
+
+    class Circle {
+        +double getRadius();
+        +String toString();
+    }
+
+    Movable <|-- Figure
+    Rectangle <|-- Square 
+    Ellipse <|-- Circle 
+
+    Figure <|-- Ellipse
+    Figure <|-- Rectangle 
+    Point*--Ellipse
+    Point *-- Rectangle
+}
+
+package "Frontend" {
+    package "Drawable Package" {
+        interface Drawable {
+            +void draw(GraphicsContext gc);
+        }
+
+        class DrawableEllipse {
+            +void draw(GraphicsContext gc);
+        }
+
+        class DrawableCircle {
+            +void draw(GraphicsContext gc);
+        }
+
+        class DrawableRectangle {
+            +void draw(GraphicsContext gc);
+        }
+
+        class DrawableSquare {
+            +void draw(GraphicsContext gc);
+        }
+
+        Drawable <|-- DrawableEllipse
+        Drawable <|-- DrawableCircle
+        Drawable <|-- DrawableRectangle
+        Drawable <|-- DrawableSquare
+
+        Ellipse <|-- DrawableEllipse
+        Circle <|-- DrawableCircle
+        Rectangle <|-- DrawableRectangle
+        Square <|-- DrawableSquare
+    }
+
+    package "Features Package" {
+        enum Shade {
+            NOSHADE
+            SIMPLE
+            SIMPLEINVERTED
+            COLORED
+            COLOREDINVERTED
+            -int offset;
+            -boolean useDefaultColor;
+            +void drawShade(GraphicsContext gc, Drawable f, Color c);
+        }
+
+        class FigureFeatures {
+            +Color getColor1();
+            +Color getColor2();
+            +Shade getShade();
+        }
+
+        Shade *-- FigureFeatures
+        Color *-- FigureFeatures
+    }
+
+    package "JavaFX" {
+        object Application
+
+        class AppLauncher {
+            +{static} void main(String[] args);
+            +void start();
+        }
+
+        class CanvasState<T extends Figure> {
+            -List<T> list;
+            +void addFigure(T figure);
+            +void deleteFigure(T figure);
+            +Iterable<T> figures();
+        }
+
+        class MainFrame<T extends Drawable> {
+            +MainFrame(CanvasState<T> state)
+        }
+        class AppMenuBar { }
+        class StatusPane { }
+        class PaintPane {
+            CanvasState<Drawable> canvasState;
+            Drawable selectedFigure;
+            +void redrawCanvas();
+        }
+
+        note top: All the figures that are drawn\nare stored inside the CanvasState
+
+        Application <|-- AppLauncher
+        MainFrame *-- AppLauncher
+        CanvasState *-- AppLauncher
+        CanvasState *- Drawable
+
+        AppMenuBar *-- MainFrame
+        StatusPane *-- MainFrame
+        PaintPane *-- MainFrame
+
+        CanvasState .. MainFrame
+        CanvasState .. PaintPane
+
+        'Drawable *-- PaintPane
+        FigureFeatures *- PaintPane
+
+        class Canvas {
+            +setOnMousePressed();
+            +setOnMouseReleased();
+            +setOnMouseMoved();
+            +setOnMouseClicked();
+            +setOnMouseDragged();
+        }
+
+        Canvas *-- PaintPane
+        StatusPane .. PaintPane
+    }
+}
+
+
+@enduml
