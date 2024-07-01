@@ -18,4 +18,8 @@ public class Circle extends Ellipse {
         return Math.sqrt(Math.pow(this.getCenterPoint().getX() - p.getX(), 2) +
                 Math.pow(this.getCenterPoint().getY() - p.getY(), 2)) < this.getRadius();
     }
+    @Override
+    public double[] divideAxis(){
+        return new double[]{this.getRadius() / 4};
+    }
 }

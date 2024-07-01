@@ -31,4 +31,11 @@ public class DrawableCircle extends Circle implements RadiallyColored {
     public Drawable getCopy(){
         return new DrawableCircle(this.getCenterPoint().getCopy(), this.getRadius());
     }
+
+    @Override
+    public Drawable[] split(){
+        Point[] centers = this.divideCenter();
+        double radius = this.divideAxis()[0];
+        return new Drawable[]{new DrawableCircle(centers[0], radius), new DrawableCircle(centers[1], radius)};
+    }
 }

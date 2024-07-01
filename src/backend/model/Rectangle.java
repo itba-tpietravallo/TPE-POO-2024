@@ -54,4 +54,8 @@ public class Rectangle implements Figure, Movable {
     public double sizeY(){
         return this.getBottomRight().getY() - this.getTopLeft().getY();
     }
+
+    public Point[] divide() {
+        return new Point[]{new Point(topLeft.getX(), topLeft.getY() + sizeY() / 4), new Point(topLeft.getX() + sizeX() / 2, topLeft.getY() + sizeY() * (3.0 / 4.0)), new Point(topLeft.getX() + sizeX() / 2, topLeft.getY() + sizeY() / 4), new Point(bottomRight.getX(), topLeft.getY() + sizeY() * (3.0 / 4.0))};
+    }
 }

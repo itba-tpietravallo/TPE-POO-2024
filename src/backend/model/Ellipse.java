@@ -48,4 +48,12 @@ public class Ellipse implements Figure {
     public double getY() {
         return this.getCenterPoint().getY();
     }
+
+    public Point[] divideCenter(){
+        return new Point[]{new Point(centerPoint.getX() - sMayorAxis / 4, centerPoint.getY()), new Point(centerPoint.getX() + sMayorAxis / 4, centerPoint.getY())};
+    }
+
+    public double[] divideAxis(){
+        return new double[]{sMayorAxis / 2, sMinorAxis / 2};
+    }
 }

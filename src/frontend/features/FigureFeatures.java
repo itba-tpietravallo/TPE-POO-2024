@@ -1,8 +1,9 @@
 package frontend.features;
+import backend.model.Copiable;
 import javafx.scene.paint.*;
 
 
-public class FigureFeatures {
+public class FigureFeatures implements Copiable<FigureFeatures> {
 
     private Color color1;
     private Color color2;
@@ -52,6 +53,7 @@ public class FigureFeatures {
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
+    @Override
     public FigureFeatures getCopy(){
         return new FigureFeatures(color1, color2, shade, strokeWidth, stroke);
     }
