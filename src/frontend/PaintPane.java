@@ -166,7 +166,7 @@ public class PaintPane extends BorderPane {
 		duplicateButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
 			Drawable duplicatedFigure = f.getCopy();
 			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f));
+			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
 			canvasState.addFigure(duplicatedFigure);
 		}));
 
@@ -211,10 +211,10 @@ public class PaintPane extends BorderPane {
 	}
 
 	private void onMousePressed(MouseEvent event) {
-		startPoint = new Point(event.getX(), event.getY());
+		startPoint = this.pointFromEvent(event);
 	}
 	private void onMouseReleased(MouseEvent event) {
-		Point endPoint = new Point(event.getX(), event.getY());
+		Point endPoint = this.pointFromEvent(event);
 
 		if(startPoint == null) {
 			return ;
@@ -248,18 +248,24 @@ public class PaintPane extends BorderPane {
 		startPoint = null;
 		redrawCanvas();
 	}
+
+	private Point pointFromEvent(MouseEvent event) {
+		return new Point(event.getX(), event.getY());
+	}
 	private void onMouseMoved(MouseEvent event) {
-		checkIntersectingFigures(event);
+		updateStatusLabel(pointFromEvent(event));
 	}
 	private void onMouseClicked(MouseEvent event) {
+		Point location = this.pointFromEvent(event);
+		this.updateStatusLabel(location, "Ninguna figura encontrada");
 		if(this.selectionMode()) {
-			selectedFigure = checkIntersectingFigures(event);
+			selectedFigure = canvasState.intersectingFigures(location).findFirst();
 			redrawCanvas();
 		}
 	}
 	private void onMouseDragged(MouseEvent event) {
 		if(this.selectionMode()) {
-			Point eventPoint = new Point(event.getX(), event.getY());
+			Point eventPoint = this.pointFromEvent(event);
 			double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 			double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
 			selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
@@ -269,28 +275,17 @@ public class PaintPane extends BorderPane {
 	private boolean selectionMode() {
 		return this.selectionButton.isSelected();
 	}
-
-	private Optional<Drawable> checkIntersectingFigures(MouseEvent event){
-		Point location = new Point(event.getX(), event.getY());
-		Optional<Drawable> intersectingFigure = Optional.empty();
-		StringBuilder label = new StringBuilder("Se seleccionó: ");
-		boolean found = false;
-
-		for (Drawable figure : canvasState.figures()) {
-			if(figure.pointBelongs(location)) {
-				found = true;
-				intersectingFigure = Optional.of(figure);
-				label.append(figure.toString());
-			}
-		}
-
-		if(found) {
-			statusPane.updateStatus(label.toString());
-		} else {
-			statusPane.updateStatus(location.toString());
-		}
-
-		return intersectingFigure;
+	private void updateStatusLabel(Point location) {
+		this.updateStatusLabel(location, location.toString());
+	}
+	private void updateStatusLabel(Point location, String defaultText) {
+		canvasState.intersectsAnyFigure(location).ifPresentOrElse(x -> {
+			statusPane.updateStatus(
+					canvasState.intersectingFigures(location)
+							.map(Drawable::toString)
+							.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
+			);
+		}, () -> { statusPane.updateStatus(defaultText); });
 	}
 
 	private <T extends Event> EventHandler<T> runIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
