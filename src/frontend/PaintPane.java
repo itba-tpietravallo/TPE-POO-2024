@@ -20,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.input.MouseEvent;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -151,26 +152,15 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseClicked(this::onMouseClicked);
 		canvas.setOnMouseDragged(this::onMouseDragged);
 
+		this.bindComboBox(fillColorPicker1, FigureFeatures::setColor1);
+		this.bindComboBox(fillColorPicker2, FigureFeatures::setColor2);
+		this.bindChoiceBox(shadowOptions, FigureFeatures::setShade);
+		this.bindChoiceBox(strokeOptions, FigureFeatures::setStroke);
+		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
+
 		deleteButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
 			canvasState.deleteFigure(f);
 			selectedFigure = Optional.empty();
-		}));
-
-		fillColorPicker1.setOnAction(this.runIfSelectedFigurePresent(f -> {
-			figureFeaturesMap.get(f).setColor1(fillColorPicker1.getValue());
-		}));
-
-		fillColorPicker2.setOnAction(this.runIfSelectedFigurePresent(f -> {
-			figureFeaturesMap.get(f).setColor2(fillColorPicker2.getValue());
-		}));
-
-		shadowOptions.setOnAction(this.runIfSelectedFigurePresent(f -> {
-			figureFeaturesMap.get(f).setShade(shadowOptions.getValue());
-			figureFeaturesMap.get(f).setStroke(strokeOptions.getValue());
-		}));
-
-		strokeWidth.setOnMouseDragged(this.runIfSelectedFigurePresent(f -> {
-			figureFeaturesMap.get(f).setStrokeWidth(strokeWidth.getValue());
 		}));
 
 		duplicateButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
@@ -292,5 +282,23 @@ public class PaintPane extends BorderPane {
 			figureConsumer.accept(f);
 			redrawCanvas();
 		});
+	}
+
+	private <T> void bindComboBox(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
+		box.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
+		}));
+	}
+
+	private <T> void bindChoiceBox(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
+		box.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
+		}));
+	}
+
+	private void bindSlider(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
+		slider.setOnMouseDragged(this.runIfSelectedFigurePresent(f -> {
+			featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue());
+		}));
 	}
 }
