@@ -158,19 +158,19 @@ public class PaintPane extends BorderPane {
 		this.bindChoiceBox(strokeOptions, FigureFeatures::setStroke);
 		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
 
-		deleteButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+		this.bindButton(deleteButton, f -> {
 			canvasState.deleteFigure(f);
 			selectedFigure = Optional.empty();
-		}));
+		});
 
-		duplicateButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+		this.bindButton(duplicateButton, f -> {
 			Drawable duplicatedFigure = f.getCopy();
 			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
 			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
 			canvasState.addFigure(duplicatedFigure);
-		}));
+		});;
 
-		divideButton.setOnAction(this.runIfSelectedFigurePresent(f ->{
+		this.bindButton(divideButton, f ->{
 			Drawable[] dividedFigures = f.split();
 			for (Drawable newFigure : dividedFigures) {
 				figureFeaturesMap.put(newFigure, figureFeaturesMap.get(f).getCopy());
@@ -178,11 +178,11 @@ public class PaintPane extends BorderPane {
 			};
 			figureFeaturesMap.remove(f);
 			canvasState.deleteFigure(f);
-		}));
+		});
 
-		moveToCenterButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+		this.bindButton(moveToCenterButton, f -> {
 			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
-		}));
+		});
 
 		setLeft(buttonsBox);
 		setRight(canvas);
@@ -291,27 +291,30 @@ public class PaintPane extends BorderPane {
 		return intersectingFigure;
 	}
 
-	private <T extends Event> EventHandler<T> runIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
+	private <T extends Event> EventHandler<T> runAndRedrawIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
 		return (event) -> selectedFigure.ifPresent(f -> {
 			figureConsumer.accept(f);
 			redrawCanvas();
 		});
 	}
 
+	private <T> void bindButton(ButtonBase button, Consumer<Drawable> action) {
+		button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
+	}
 	private <T> void bindComboBox(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-		box.setOnAction(this.runIfSelectedFigurePresent(f -> {
+		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
 		}));
 	}
 
 	private <T> void bindChoiceBox(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-		box.setOnAction(this.runIfSelectedFigurePresent(f -> {
+		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
 		}));
 	}
 
 	private void bindSlider(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
-		slider.setOnMouseDragged(this.runIfSelectedFigurePresent(f -> {
+		slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue());
 		}));
 	}
