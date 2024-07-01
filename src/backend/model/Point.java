@@ -1,6 +1,6 @@
 package backend.model;
 
-public class Point implements Movable {
+public class Point implements Movable, Copiable<Point>{
 
     private double x, y;
 
@@ -35,6 +35,7 @@ public class Point implements Movable {
         this.y = y;
     }
 
+    @Override
     public Point getCopy(){
         return new Point(x, y);
     }
