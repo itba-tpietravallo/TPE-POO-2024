@@ -5,17 +5,16 @@ import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.input.MouseEvent;
 
@@ -81,6 +80,14 @@ public class PaintPane extends BorderPane {
 	ToggleButton divideButton = new ToggleButton("Dividir");
 	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
 
+	// Layers
+	Label layerLabel = new Label("Capas");
+	// todo Cambiar a <Layer>
+	ChoiceBox<String> layerOptions = new ChoiceBox<>(FXCollections.observableArrayList("Capa 1", "Capa 2", "Capa 3"));
+	RadioButton showButton = new RadioButton("Mostrar");
+	RadioButton hideButton = new RadioButton("Ocultar");
+	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
+	ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
 
 	// Dibujar una figura
 	Point startPoint;
@@ -146,6 +153,18 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
+		Region leftSpacer = new Region();
+		Region rightSpacer = new Region();
+		HBox.setHgrow(leftSpacer, Priority.ALWAYS);
+		HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+		Collection<Node> topButtons = new ArrayList<>(List.of(leftSpacer, layerLabel, showButton, hideButton, addLayerButton, deleteLayerButton, rightSpacer));
+
+		HBox topBox = new HBox(VBOX_SPACING);
+		topBox.getChildren().addAll(topButtons);
+		topBox.setPadding(new Insets(OFFSETS_VALUE));
+		topBox.setStyle(VBOX_BACKGROUND_COLOR);
+
 		canvas.setOnMousePressed(this::onMousePressed);
 		canvas.setOnMouseReleased(this::onMouseReleased);
 		canvas.setOnMouseMoved(this::onMouseMoved);
@@ -184,6 +203,7 @@ public class PaintPane extends BorderPane {
 			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
 		});
 
+		setTop(topBox);
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
