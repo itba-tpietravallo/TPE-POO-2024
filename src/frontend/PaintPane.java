@@ -170,6 +170,18 @@ public class PaintPane extends BorderPane {
 			canvasState.addFigure(duplicatedFigure);
 		}));
 
+		divideButton.setOnAction(this.runIfSelectedFigurePresent(f ->{
+			Drawable[] dividedFigures = f.split();
+			Drawable dividedFigure1 = dividedFigures[0];
+			Drawable dividedFigure2 = dividedFigures[1];
+			figureFeaturesMap.put(dividedFigure1, figureFeaturesMap.get(f).getCopy());
+			figureFeaturesMap.put(dividedFigure2, figureFeaturesMap.get(f).getCopy());
+			figureFeaturesMap.remove(f);
+			canvasState.deleteFigure(f);
+			canvasState.addFigure(dividedFigure1);
+			canvasState.addFigure(dividedFigure2);
+		}));
+
 		moveToCenterButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
 			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
 		}));

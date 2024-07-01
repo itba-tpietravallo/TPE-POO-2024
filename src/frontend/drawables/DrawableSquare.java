@@ -26,4 +26,10 @@ public class DrawableSquare extends Square implements LinearlyColored {
     public Drawable getCopy(){
         return new DrawableSquare(this.getTopLeft().getCopy(), this.sizeX());
     }
+
+    @Override
+    public Drawable[] split(){
+        Point[] points = this.divide();
+        return new Drawable[]{createFromPoints(points[0], points[1]), createFromPoints(points[2], points[3])};
+    }
 }

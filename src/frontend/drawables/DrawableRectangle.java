@@ -25,4 +25,10 @@ public class DrawableRectangle extends Rectangle implements LinearlyColored {
     public Drawable getCopy(){
         return new DrawableRectangle(this.getTopLeft().getCopy(), this.getBottomRight().getCopy());
     }
+
+    @Override
+    public Drawable[] split(){
+        Point[] points = this.divide();
+        return new Drawable[]{createFromPoints(points[0], points[1]), createFromPoints(points[2], points[3])};
+    }
 }
