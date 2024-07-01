@@ -5,6 +5,9 @@ import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -18,6 +21,7 @@ import javafx.scene.input.MouseEvent;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -147,59 +151,38 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseClicked(this::onMouseClicked);
 		canvas.setOnMouseDragged(this::onMouseDragged);
 
-		deleteButton.setOnAction(event -> {
-			selectedFigure.ifPresent(f -> {
-				canvasState.deleteFigure(f);
-				selectedFigure = Optional.empty();
-				redrawCanvas();
-			});
-		});
+		deleteButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			canvasState.deleteFigure(f);
+			selectedFigure = Optional.empty();
+		}));
 
-		fillColorPicker1.setOnAction(event ->{
-			selectedFigure.ifPresent(f -> {
-				figureFeaturesMap.get(f).setColor1(fillColorPicker1.getValue());
-				redrawCanvas();
-			});
-		});
+		fillColorPicker1.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			figureFeaturesMap.get(f).setColor1(fillColorPicker1.getValue());
+		}));
 
-		fillColorPicker2.setOnAction(event ->{
-			selectedFigure.ifPresent(f -> {
-				figureFeaturesMap.get(f).setColor1(fillColorPicker2.getValue());
-				redrawCanvas();
-			});
-		});
+		fillColorPicker2.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			figureFeaturesMap.get(f).setColor2(fillColorPicker2.getValue());
+		}));
 
-		shadowOptions.setOnAction(event -> {
-			selectedFigure.ifPresent(f -> {
-				figureFeaturesMap.get(f).setShade(shadowOptions.getValue());
-				figureFeaturesMap.get(f).setStroke(strokeOptions.getValue());
-				redrawCanvas();
-			});
-		});
+		shadowOptions.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			figureFeaturesMap.get(f).setShade(shadowOptions.getValue());
+			figureFeaturesMap.get(f).setStroke(strokeOptions.getValue());
+		}));
 
-		strokeWidth.setOnMouseDragged(event -> {
-			selectedFigure.ifPresent(f -> {
-				figureFeaturesMap.get(f).setStrokeWidth(strokeWidth.getValue());
-				redrawCanvas();
-			});
-		});
+		strokeWidth.setOnMouseDragged(this.runIfSelectedFigurePresent(f -> {
+			figureFeaturesMap.get(f).setStrokeWidth(strokeWidth.getValue());
+		}));
 
-		duplicateButton.setOnAction(event -> {
-			selectedFigure.ifPresent(f -> {
-				Drawable duplicatedFigure = f.getCopy();
-				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-				figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f));
-				canvasState.addFigure(duplicatedFigure);
-				redrawCanvas();
-			});
-		});
+		duplicateButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			Drawable duplicatedFigure = f.getCopy();
+			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
+			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f));
+			canvasState.addFigure(duplicatedFigure);
+		}));
 
-		moveToCenterButton.setOnAction(event -> {
-			selectedFigure.ifPresent(f -> {
-				f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
-				redrawCanvas();
-			});
-		});
+		moveToCenterButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
+			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+		}));
 
 		setLeft(buttonsBox);
 		setRight(canvas);
@@ -302,5 +285,12 @@ public class PaintPane extends BorderPane {
 		}
 
 		return intersectingFigure;
+	}
+
+	private <T extends Event> EventHandler<T> runIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
+		return (event) -> selectedFigure.ifPresent(f -> {
+			figureConsumer.accept(f);
+			redrawCanvas();
+		});
 	}
 }
