@@ -240,18 +240,22 @@ public class PaintPane extends BorderPane {
 		checkIntersectingFigures(event);
 	}
 	private void onMouseClicked(MouseEvent event) {
-		if(selectionButton.isSelected()) {
+		if(this.selectionMode()) {
 			selectedFigure = checkIntersectingFigures(event);
 			redrawCanvas();
 		}
 	}
 	private void onMouseDragged(MouseEvent event) {
-		if(selectionButton.isSelected()) {
+		if(this.selectionMode()) {
 			Point eventPoint = new Point(event.getX(), event.getY());
 			double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 			double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
 			selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
 		}
+	}
+
+	private boolean selectionMode() {
+		return this.selectionButton.isSelected();
 	}
 
 	private Optional<Drawable> checkIntersectingFigures(MouseEvent event){
