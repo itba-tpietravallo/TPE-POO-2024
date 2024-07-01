@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.input.MouseEvent;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -99,6 +100,10 @@ public class PaintPane extends BorderPane {
 		this.statusPane = statusPane;
 
 		List<ToggleButton> toolsArr = new ArrayList<>();
+		toolsArr.add(selectionButton);
+		toolsArr.addAll(figureButtons.keySet());
+		toolsArr.add(deleteButton);
+
 		List<ToggleButton> actionsArr = List.of(duplicateButton, divideButton, moveToCenterButton);
 
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
@@ -113,25 +118,12 @@ public class PaintPane extends BorderPane {
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
 
-		toolsArr.add(selectionButton);
-		toolsArr.addAll(figureButtons.keySet());
-		toolsArr.add(deleteButton);
-
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadowLabel, shadowOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
 		sideButtons.addAll(actionsArr);
 
-		for (ToggleButton btn : toolsArr) {
-			btn.setMinWidth(TOOL_MIN_WIDTH);
-			btn.setToggleGroup(tools);
-			btn.setCursor(Cursor.HAND);
-		}
-
-		for (ToggleButton btn : actionsArr) {
-			btn.setMinWidth(TOOL_MIN_WIDTH);
-			btn.setToggleGroup(actions);
-			btn.setCursor(Cursor.HAND);
-		}
+		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
+		actionsArr.forEach(action -> { action.setToggleGroup(actions); action.setMinWidth(TOOL_MIN_WIDTH); action.setCursor(Cursor.HAND); });
 
 		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
 			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
@@ -149,93 +141,11 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
-		canvas.setOnMousePressed(event -> {
-			startPoint = new Point(event.getX(), event.getY());
-		});
-
-		canvas.setOnMouseReleased(event -> {
-			Point endPoint = new Point(event.getX(), event.getY());
-
-			if(startPoint == null) {
-				return ;
-			}
-
-			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-				return ;
-			}
-
-			Drawable newFigure = null;
-
-			for (Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>> e : figureButtons.entrySet()) {
-				if (e.getKey().isSelected()) {
-					newFigure = e.getValue().apply(startPoint, endPoint);
-					break;
-				}
-			}
-
-			if (newFigure == null) return;
-
-			FigureFeatures features = new FigureFeatures(
-					fillColorPicker1.getValue(),
-					fillColorPicker2.getValue(),
-					shadowOptions.getValue(),
-					strokeWidth.getValue(),
-					strokeOptions.getValue()
-			);
-
-			figureFeaturesMap.put(newFigure, features);
-			canvasState.addFigure(newFigure);
-			startPoint = null;
-			redrawCanvas();
-		});
-
-		canvas.setOnMouseMoved(event -> {
-			Point eventPoint = new Point(event.getX(), event.getY());
-			boolean found = false;
-			StringBuilder label = new StringBuilder();
-			for(Drawable figure : canvasState.figures()) {
-				if(figure.pointBelongs(eventPoint)) {
-					found = true;
-					label.append(figure.toString());
-				}
-			}
-			if(found) {
-				statusPane.updateStatus(label.toString());
-			} else {
-				statusPane.updateStatus(eventPoint.toString());
-			}
-		});
-
-		canvas.setOnMouseClicked(event -> {
-			if(selectionButton.isSelected()) {
-				Point eventPoint = new Point(event.getX(), event.getY());
-				boolean found = false;
-				StringBuilder label = new StringBuilder("Se seleccionó: ");
-				for (Drawable figure : canvasState.figures()) {
-					if(figure.pointBelongs(eventPoint)) {
-						found = true;
-						selectedFigure = Optional.of(figure);
-						label.append(figure.toString());
-					}
-				}
-				if (found) {
-					statusPane.updateStatus(label.toString());
-				} else {
-					selectedFigure = Optional.empty();
-					statusPane.updateStatus("Ninguna figura encontrada");
-				}
-				redrawCanvas();
-			}
-		});
-
-		canvas.setOnMouseDragged(event -> {
-			if(selectionButton.isSelected()) {
-				Point eventPoint = new Point(event.getX(), event.getY());
-				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
-				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-				selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
-			}
-		});
+		canvas.setOnMousePressed(this::onMousePressed);
+		canvas.setOnMouseReleased(this::onMouseReleased);
+		canvas.setOnMouseMoved(this::onMouseMoved);
+		canvas.setOnMouseClicked(this::onMouseClicked);
+		canvas.setOnMouseDragged(this::onMouseDragged);
 
 		deleteButton.setOnAction(event -> {
 			selectedFigure.ifPresent(f -> {
@@ -315,4 +225,82 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
+	private void onMousePressed(MouseEvent event) {
+		startPoint = new Point(event.getX(), event.getY());
+	}
+	private void onMouseReleased(MouseEvent event) {
+		Point endPoint = new Point(event.getX(), event.getY());
+
+		if(startPoint == null) {
+			return ;
+		}
+
+		if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
+			return ;
+		}
+
+		Drawable newFigure = null;
+
+		for (Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>> e : figureButtons.entrySet()) {
+			if (e.getKey().isSelected()) {
+				newFigure = e.getValue().apply(startPoint, endPoint);
+				break;
+			}
+		}
+
+		if (newFigure == null) return;
+
+		FigureFeatures features = new FigureFeatures(
+				fillColorPicker1.getValue(),
+				fillColorPicker2.getValue(),
+				shadowOptions.getValue(),
+				strokeWidth.getValue(),
+				strokeOptions.getValue()
+		);
+
+		figureFeaturesMap.put(newFigure, features);
+		canvasState.addFigure(newFigure);
+		startPoint = null;
+		redrawCanvas();
+	}
+	private void onMouseMoved(MouseEvent event) {
+		checkIntersectingFigures(event);
+	}
+	private void onMouseClicked(MouseEvent event) {
+		if(selectionButton.isSelected()) {
+			selectedFigure = checkIntersectingFigures(event);
+			redrawCanvas();
+		}
+	}
+	private void onMouseDragged(MouseEvent event) {
+		if(selectionButton.isSelected()) {
+			Point eventPoint = new Point(event.getX(), event.getY());
+			double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
+			double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
+			selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
+		}
+	}
+
+	private Optional<Drawable> checkIntersectingFigures(MouseEvent event){
+		Point location = new Point(event.getX(), event.getY());
+		Optional<Drawable> intersectingFigure = Optional.empty();
+		StringBuilder label = new StringBuilder("Se seleccionó: ");
+		boolean found = false;
+
+		for (Drawable figure : canvasState.figures()) {
+			if(figure.pointBelongs(location)) {
+				found = true;
+				intersectingFigure = Optional.of(figure);
+				label.append(figure.toString());
+			}
+		}
+
+		if(found) {
+			statusPane.updateStatus(label.toString());
+		} else {
+			statusPane.updateStatus(location.toString());
+		}
+
+		return intersectingFigure;
+	}
 }
