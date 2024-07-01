@@ -166,7 +166,7 @@ public class PaintPane extends BorderPane {
 		duplicateButton.setOnAction(this.runIfSelectedFigurePresent(f -> {
 			Drawable duplicatedFigure = f.getCopy();
 			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f));
+			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
 			canvasState.addFigure(duplicatedFigure);
 		}));
 

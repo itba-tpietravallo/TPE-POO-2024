@@ -24,9 +24,9 @@ public enum Stroke {
     }
 
     public void setStroke(GraphicsContext gc, double strokeWidth, boolean isSelected) {
-        gc.setLineWidth(strokeWidth);
         gc.setLineDashes(this.spacing);
-        gc.setStroke(getColor(isSelected));
+        gc.setLineWidth(strokeWidth);
+        setSafeStrokeWidth(gc, strokeWidth, isSelected);
     }
 
     public void setStroke(GraphicsContext gc){
@@ -36,9 +36,16 @@ public enum Stroke {
     public Color getColor(boolean isSelected){
         return isSelected ? SELECTED_COLOR : DEFAULT_COLOR;
     }
-
     @Override
     public String toString() {
         return name;
+    }
+
+    private void setSafeStrokeWidth(GraphicsContext gc, double strokeWidth, boolean isSelected) {
+        if (strokeWidth == 0) {
+            gc.setStroke(Stroke.NOSTROKE.getColor(isSelected));
+        } else {
+            gc.setStroke(getColor(isSelected));
+        }
     }
 }
