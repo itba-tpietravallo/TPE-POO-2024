@@ -7,6 +7,7 @@ import frontend.features.*;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -96,48 +97,52 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
+
 		List<ToggleButton> toolsArr = new ArrayList<>();
+		List<ToggleButton> actionsArr = List.of(duplicateButton, divideButton, moveToCenterButton);
+
+		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
+				Map.entry(shadowOptions, Shade.NOSHADE),
+				Map.entry(strokeOptions, Stroke.NORMAL)
+		);
+
+		// @todo Look into type-safe heterogeneous containers
+		shadowOptions.setValue(Shade.NOSHADE);
+		strokeOptions.setValue(Stroke.NORMAL);
+
+		ToggleGroup tools = new ToggleGroup();
+		ToggleGroup actions = new ToggleGroup();
+
 		toolsArr.add(selectionButton);
 		toolsArr.addAll(figureButtons.keySet());
 		toolsArr.add(deleteButton);
 
-		ToggleGroup tools = new ToggleGroup();
-		for (ToggleButton tool : toolsArr) {
-			tool.setMinWidth(TOOL_MIN_WIDTH);
-			tool.setToggleGroup(tools);
-			tool.setCursor(Cursor.HAND);
+		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
+		sideButtons.addAll(List.of(shadowLabel, shadowOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
+		sideButtons.addAll(actionsArr);
+
+		for (ToggleButton btn : toolsArr) {
+			btn.setMinWidth(TOOL_MIN_WIDTH);
+			btn.setToggleGroup(tools);
+			btn.setCursor(Cursor.HAND);
+		}
+
+		for (ToggleButton btn : actionsArr) {
+			btn.setMinWidth(TOOL_MIN_WIDTH);
+			btn.setToggleGroup(actions);
+			btn.setCursor(Cursor.HAND);
+		}
+
+		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
+			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
 		}
 
 		VBox buttonsBox = new VBox(VBOX_SPACING);
-		buttonsBox.getChildren().addAll(toolsArr);
+		buttonsBox.getChildren().addAll(sideButtons);
 
-		buttonsBox.getChildren().add(shadowLabel);
-		shadowOptions.setMinWidth(TOOL_MIN_WIDTH);
-		shadowOptions.setValue(Shade.NOSHADE);
-		buttonsBox.getChildren().add(shadowOptions);
-
-		buttonsBox.getChildren().add(fillLabel);
-		buttonsBox.getChildren().add(fillColorPicker1);
-		buttonsBox.getChildren().add(fillColorPicker2);
-
-		buttonsBox.getChildren().add(strokeLabel);
 		strokeWidth.setMin(STROKE_MIN);
 		strokeWidth.setMax(STROKE_MAX);
 		strokeWidth.setShowTickLabels(true);
-		buttonsBox.getChildren().add(strokeWidth);
-		strokeOptions.setMinWidth(TOOL_MIN_WIDTH);
-		strokeOptions.setValue(Stroke.NORMAL);
-		buttonsBox.getChildren().add(strokeOptions);
-
-		buttonsBox.getChildren().add(actionLabel);
-		ToggleButton[] actionsArr = {duplicateButton, divideButton, moveToCenterButton};
-		ToggleGroup actions = new ToggleGroup();
-		for (ToggleButton actionButton : actionsArr) {
-			actionButton.setMinWidth(TOOL_MIN_WIDTH);
-			actionButton.setToggleGroup(actions);
-			actionButton.setCursor(Cursor.HAND);
-		}
-		buttonsBox.getChildren().addAll(actionsArr);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
 		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
