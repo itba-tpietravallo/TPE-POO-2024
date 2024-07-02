@@ -91,7 +91,12 @@ public class PaintPane extends BorderPane {
 	// Layers
 	Label layerLabel = new Label("Capas");
 	// todo Cambiar a <Layer>
-	ChoiceBox<String> layerOptions = new ChoiceBox<>(FXCollections.observableArrayList("Capa 1", "Capa 2", "Capa 3"));
+
+	Layer<Drawable> layer1 = new Layer<>("Capa 1");
+	Layer<Drawable> layer2 = new Layer<>("Capa 2");
+	Layer<Drawable> layer3 = new Layer<>("Capa 3");
+	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(FXCollections.observableArrayList(layer1, layer2, layer3));
+
 	RadioButton showButton = new RadioButton("Mostrar");
 	RadioButton hideButton = new RadioButton("Ocultar");
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
@@ -133,6 +138,7 @@ public class PaintPane extends BorderPane {
 
 		// @todo Look into type-safe heterogeneous containers
 		assignDefaultValues();
+		layerOptions.setValue(layer1);
 
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
@@ -160,7 +166,7 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
-		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, showButton, hideButton, addLayerButton, deleteLayerButton));
+		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, layerOptions, showButton, hideButton, addLayerButton, deleteLayerButton));
 
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
@@ -181,7 +187,7 @@ public class PaintPane extends BorderPane {
 		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
 
 		this.bindButton(deleteButton, f -> {
-			canvasState.deleteFigure(f);
+			canvasState.deleteFigure(f, layer1);
 			selectedFigure = Optional.empty();
 		});
 
@@ -189,21 +195,38 @@ public class PaintPane extends BorderPane {
 			Drawable duplicatedFigure = f.getCopy();
 			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
 			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
-			canvasState.addFigure(duplicatedFigure);
-		});;
+			canvasState.addFigure(duplicatedFigure, layer1);
+		});
 
 		this.bindButton(divideButton, f ->{
 			Drawable[] dividedFigures = f.split();
 			for (Drawable newFigure : dividedFigures) {
 				figureFeaturesMap.put(newFigure, figureFeaturesMap.get(f).getCopy());
-				canvasState.addFigure(newFigure);
+				canvasState.addFigure(newFigure, layer1);
 			};
 			figureFeaturesMap.remove(f);
-			canvasState.deleteFigure(f);
+			canvasState.deleteFigure(f, layer1);
 		});
 
 		this.bindButton(moveToCenterButton, f -> {
 			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+		});
+
+		this.addLayerButton.setOnAction( event -> {
+			Layer<Drawable> newLayer = new Layer<>("Capa %d".formatted(canvasState.nextLayer()));
+			layerOptions.getItems().add(newLayer);
+		});
+
+		this.showButton.setOnAction(event -> {
+			this.hideButton.setSelected(false);
+			layer1.setHidden(false);
+			redrawCanvas();
+		});
+
+		this.hideButton.setOnAction(event -> {
+			this.showButton.setSelected(false);
+			layer1.setHidden(true);
+			redrawCanvas();
 		});
 
 		setTop(topBox);
@@ -225,7 +248,7 @@ public class PaintPane extends BorderPane {
 
 			// Set stroke
 			features.getStroke().setStroke(gc, features.getStrokeWidth(), selectedFigure.isPresent() && selectedFigure.get().equals(figure) );
-
+			
 			// Draw the figure
 			figure.draw(gc);
 		}
@@ -265,7 +288,7 @@ public class PaintPane extends BorderPane {
 		);
 
 		figureFeaturesMap.put(newFigure, features);
-		canvasState.addFigure(newFigure);
+		canvasState.addFigure(newFigure, layer1);
 		startPoint = null;
 		redrawCanvas();
 	}
