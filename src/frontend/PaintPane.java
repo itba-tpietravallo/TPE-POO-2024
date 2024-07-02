@@ -216,7 +216,6 @@ public class PaintPane extends BorderPane {
 
 		layerOptions.setOnAction( event -> {
 			canvasState.setCurrentLayer(layerOptions.getValue());
-			System.out.println("Layer seleccionada %d".formatted(layerOptions.getValue().getId()));
 		});
 
 		this.showButton.setOnAction(event -> {

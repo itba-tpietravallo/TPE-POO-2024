@@ -5,20 +5,10 @@ import java.util.List;
 import java.util.Objects;
 
 public class Layer<T> {
-
-    private final int id;
-    private boolean visible;
+    private static int CURRENT_LAYER_ID = 1;
+    private final int id = CURRENT_LAYER_ID++;
+    private boolean visible = true;
     private final List<T> figures = new ArrayList<>();
-
-    public Layer(int id) {
-        this.id = id;
-        this.visible = true;
-    }
-
-    public int getId(){
-        return this.id;
-    }
-
     public void addFigure(T figure) {
         figures.add(figure);
     }
@@ -37,17 +27,6 @@ public class Layer<T> {
 
     public boolean isVisible() {
         return this.visible;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof Layer<?> l &&
-                this.id == (l.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.id, figures);
     }
 
     @Override
