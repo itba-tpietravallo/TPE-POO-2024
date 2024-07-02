@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -141,8 +142,11 @@ public class PaintPane extends BorderPane {
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
 		sideButtons.addAll(actionsArr);
 
-		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
-		actionsArr.forEach(action -> { action.setToggleGroup(actions); action.setMinWidth(TOOL_MIN_WIDTH); action.setCursor(Cursor.HAND); });
+		// Set toggle groups
+		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
+		actionButtons.keySet().forEach(action -> { action.setToggleGroup(actions); });
+		// Set all the minWidth and Cursors
+		Stream.of(toolsArr, actionButtons.keySet()).flatMap(Collection::stream).forEach(tool -> { tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
 
 		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
 			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
@@ -245,29 +249,26 @@ public class PaintPane extends BorderPane {
 			return ;
 		}
 
-		Drawable newFigure = null;
+		figureButtons
+				.entrySet()
+				.stream()
+				.filter(e -> e.getKey().isSelected())
+				.map(e -> e.getValue().apply(startPoint, endPoint))
+				.findFirst()
+				.ifPresent(f -> {
+					FigureFeatures features = new FigureFeatures(
+							fillColorPicker1.getValue(),
+							fillColorPicker2.getValue(),
+							shadeOptions.getValue(),
+							strokeWidth.getValue(),
+							strokeOptions.getValue()
+					);
 
-		for (Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>> e : figureButtons.entrySet()) {
-			if (e.getKey().isSelected()) {
-				newFigure = e.getValue().apply(startPoint, endPoint);
-				break;
-			}
-		}
-
-		if (newFigure == null) return;
-
-		FigureFeatures features = new FigureFeatures(
-				fillColorPicker1.getValue(),
-				fillColorPicker2.getValue(),
-				shadeOptions.getValue(),
-				strokeWidth.getValue(),
-				strokeOptions.getValue()
-		);
-
-		figureFeaturesMap.put(newFigure, features);
-		canvasState.addFigure(newFigure);
-		startPoint = null;
-		redrawCanvas();
+					figureFeaturesMap.put(f, features);
+					canvasState.addFigure(f);
+					startPoint = null;
+					redrawCanvas();
+		});
 	}
 
 	private Point pointFromEvent(MouseEvent event) {
