@@ -221,11 +221,13 @@ public class PaintPane extends BorderPane {
 
 		this.showButton.setOnAction(event -> {
 			this.hideButton.setSelected(false);
+			canvasState.showCurrentLayer();
 			redrawCanvas();
 		});
 
 		this.hideButton.setOnAction(event -> {
 			this.showButton.setSelected(false);
+			canvasState.hideCurrentLayer();
 			redrawCanvas();
 		});
 
@@ -374,6 +376,7 @@ public class PaintPane extends BorderPane {
 		fillColorPicker2.setValue(color2);
 		strokeWidth.setValue(width);
 		strokeOptions.setValue(stroke);
+		showButton.setSelected(true);
 	}
 
 	private void assignDefaultValues(){

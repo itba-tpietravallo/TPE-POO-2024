@@ -33,8 +33,10 @@ public class CanvasState<T extends Figure> {
     }
 
     public Layer<T> addLayer() {
-        return new Layer<>(layersCreated++);
+        return new Layer<>(++layersCreated);
     }
+
+    // todo make deletelayer behaviour
 
     public void addFigure(T figure) {
         layers.get(currentLayer).addFigure(figure);
@@ -58,6 +60,14 @@ public class CanvasState<T extends Figure> {
 
     public Optional<T> intersectsAnyFigure(Point location) {
         return this.intersectingFigures(location).findAny();
+    }
+
+    public void hideCurrentLayer() {
+        layers.get(currentLayer).setVisible(false);
+    }
+
+    public void showCurrentLayer() {
+        layers.get(currentLayer).setVisible(true);
     }
 
     public int nextLayer() {
