@@ -85,9 +85,29 @@ public class PaintPane extends BorderPane {
 
 	// Actions
 	Label actionLabel = new Label("Acciones");
-	ToggleButton duplicateButton = new ToggleButton("Duplicar");
-	ToggleButton divideButton = new ToggleButton("Dividir");
-	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+
+	Map<ToggleButton, Consumer<Drawable>> actionButtons = Map.ofEntries(
+			Map.entry(new ToggleButton("Duplicar"), f -> {
+				Drawable duplicatedFigure = f.getCopy();
+				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
+				this.figureFeaturesMap.put(duplicatedFigure, this.figureFeaturesMap.get(f).getCopy());
+				canvasState.addFigure(duplicatedFigure);
+			}),
+
+			Map.entry(new ToggleButton("Dividir"), f -> {
+				Drawable[] dividedFigures = f.split();
+				for (Drawable newFigure : dividedFigures) {
+					this.figureFeaturesMap.put(newFigure, this.figureFeaturesMap.get(f).getCopy());
+					canvasState.addFigure(newFigure);
+				};
+				this.figureFeaturesMap.remove(f);
+				canvasState.deleteFigure(f);
+			}),
+
+			Map.entry(new ToggleButton("Mov. Centro"), f -> {
+				f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+			})
+	);
 
 	// Layers
 	Label layerLabel = new Label("Capas");
@@ -125,8 +145,6 @@ public class PaintPane extends BorderPane {
 		toolsArr.addAll(figureButtons.keySet());
 		toolsArr.add(deleteButton);
 
-		List<ToggleButton> actionsArr = List.of(duplicateButton, divideButton, moveToCenterButton);
-
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
 				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
@@ -140,7 +158,7 @@ public class PaintPane extends BorderPane {
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
-		sideButtons.addAll(actionsArr);
+		sideButtons.addAll(actionButtons.keySet());
 
 		// Set toggle groups
 		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
@@ -189,26 +207,7 @@ public class PaintPane extends BorderPane {
 			selectedFigure = Optional.empty();
 		});
 
-		this.bindButton(duplicateButton, f -> {
-			Drawable duplicatedFigure = f.getCopy();
-			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
-			canvasState.addFigure(duplicatedFigure);
-		});;
-
-		this.bindButton(divideButton, f ->{
-			Drawable[] dividedFigures = f.split();
-			for (Drawable newFigure : dividedFigures) {
-				figureFeaturesMap.put(newFigure, figureFeaturesMap.get(f).getCopy());
-				canvasState.addFigure(newFigure);
-			};
-			figureFeaturesMap.remove(f);
-			canvasState.deleteFigure(f);
-		});
-
-		this.bindButton(moveToCenterButton, f -> {
-			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
-		});
+		actionButtons.forEach(this::bindButton);
 
 		setTop(topBox);
 		setLeft(buttonsBox);
