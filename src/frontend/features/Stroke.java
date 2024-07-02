@@ -13,7 +13,7 @@ public enum Stroke {
     },
     NORMAL(new double[]{0}, "Normal"),
     SIMPLE(new double[]{10}, "P. Simple"),
-    COMPLEX(new double[]{30, 10, 15, 10}, "P. Coloreada");
+    COMPLEX(new double[]{30, 10, 15, 10}, "P. Complejo");
 
     private static final Color SELECTED_COLOR = Color.RED, DEFAULT_COLOR = Color.BLACK;
     private final double[] spacing;

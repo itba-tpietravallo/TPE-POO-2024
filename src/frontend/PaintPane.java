@@ -38,10 +38,20 @@ public class PaintPane extends BorderPane {
 	private static final int OFFSETS_VALUE = 5;
 
 	// Stroke dimensions
-	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
+	private static final int STROKE_MIN = 0, STROKE_MAX = 10, DEFAULT_STROKE_WIDTH = 5;
 
 	// Duplicate offset
 	private static final int DUPLICATE_OFFSET = 12;
+
+	// Default fill colors
+	private static final Color DEFAULT_FILL_COLOR_1 = Color.CYAN;
+	private static final Color DEFAULT_FILL_COLOR_2 = Color.web("ccffcc");
+
+	// Default shade
+	private static final Shade DEFAULT_SHADE = Shade.NOSHADE;
+
+	// Default stroke
+	private static final Stroke DEFAULT_STROKE_TYPE = Stroke.NORMAL;
 
 	// BackEnd
 	CanvasState<Drawable> canvasState;
@@ -49,8 +59,6 @@ public class PaintPane extends BorderPane {
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
-	Color defaultFillColor1 = Color.CYAN;
-	Color defaultFillColor2 = Color.web("ccffcc");
 
 	// Botones Barra Izquierda
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -60,14 +68,14 @@ public class PaintPane extends BorderPane {
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
 
-	// Shadow
-	Label shadowLabel = new Label("Sombra");
-	ChoiceBox<Shade> shadowOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
+	// Shade
+	Label shadeLabel = new Label("Sombra");
+	ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
 
 	// Selector de color de relleno
 	Label fillLabel = new Label("Relleno");
-	ColorPicker fillColorPicker1 = new ColorPicker(defaultFillColor1);
-	ColorPicker fillColorPicker2 = new ColorPicker(defaultFillColor2);
+	ColorPicker fillColorPicker1 = new ColorPicker();
+	ColorPicker fillColorPicker2 = new ColorPicker();
 
 	// Border
 	Label strokeLabel = new Label("Borde");
@@ -119,19 +127,18 @@ public class PaintPane extends BorderPane {
 		List<ToggleButton> actionsArr = List.of(duplicateButton, divideButton, moveToCenterButton);
 
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
-				Map.entry(shadowOptions, Shade.NOSHADE),
+				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
 		);
 
 		// @todo Look into type-safe heterogeneous containers
-		shadowOptions.setValue(Shade.NOSHADE);
-		strokeOptions.setValue(Stroke.NORMAL);
+		assignDefaultValues();
 
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
-		sideButtons.addAll(List.of(shadowLabel, shadowOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
+		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
 		sideButtons.addAll(actionsArr);
 
 		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
@@ -173,7 +180,7 @@ public class PaintPane extends BorderPane {
 
 		this.bindComboBox(fillColorPicker1, FigureFeatures::setColor1);
 		this.bindComboBox(fillColorPicker2, FigureFeatures::setColor2);
-		this.bindChoiceBox(shadowOptions, FigureFeatures::setShade);
+		this.bindChoiceBox(shadeOptions, FigureFeatures::setShade);
 		this.bindChoiceBox(strokeOptions, FigureFeatures::setStroke);
 		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
 
@@ -256,7 +263,7 @@ public class PaintPane extends BorderPane {
 		FigureFeatures features = new FigureFeatures(
 				fillColorPicker1.getValue(),
 				fillColorPicker2.getValue(),
-				shadowOptions.getValue(),
+				shadeOptions.getValue(),
 				strokeWidth.getValue(),
 				strokeOptions.getValue()
 		);
@@ -278,6 +285,7 @@ public class PaintPane extends BorderPane {
 		this.updateStatusLabel(location, "Ninguna figura encontrada");
 		if(this.selectionMode()) {
 			selectedFigure = canvasState.intersectingFigures(location).findFirst();
+			showValues(selectedFigure);
 			redrawCanvas();
 		}
 	}
@@ -332,5 +340,24 @@ public class PaintPane extends BorderPane {
 		slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue());
 		}));
+	}
+
+	private void showValues(Optional<Drawable> selectedFigure){
+		selectedFigure.ifPresentOrElse(f -> {
+			FigureFeatures features = figureFeaturesMap.get(f);
+			assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
+		}, this::assignDefaultValues);
+	}
+
+	private void assignValues(Shade shade, Color color1, Color color2, double width, Stroke stroke){
+		shadeOptions.setValue(shade);
+		fillColorPicker1.setValue(color1);
+		fillColorPicker2.setValue(color2);
+		strokeWidth.setValue(width);
+		strokeOptions.setValue(stroke);
+	}
+
+	private void assignDefaultValues(){
+		assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
 	}
 }
