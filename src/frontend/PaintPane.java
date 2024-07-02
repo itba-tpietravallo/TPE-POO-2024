@@ -153,17 +153,13 @@ public class PaintPane extends BorderPane {
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
-		Region leftSpacer = new Region();
-		Region rightSpacer = new Region();
-		HBox.setHgrow(leftSpacer, Priority.ALWAYS);
-		HBox.setHgrow(rightSpacer, Priority.ALWAYS);
-
-		Collection<Node> topButtons = new ArrayList<>(List.of(leftSpacer, layerLabel, showButton, hideButton, addLayerButton, deleteLayerButton, rightSpacer));
+		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, showButton, hideButton, addLayerButton, deleteLayerButton));
 
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
 		topBox.setPadding(new Insets(OFFSETS_VALUE));
 		topBox.setStyle(VBOX_BACKGROUND_COLOR);
+		topBox.setAlignment(Pos.CENTER);
 
 		canvas.setOnMousePressed(this::onMousePressed);
 		canvas.setOnMouseReleased(this::onMouseReleased);
