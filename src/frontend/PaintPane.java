@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
@@ -85,9 +86,29 @@ public class PaintPane extends BorderPane {
 
 	// Actions
 	Label actionLabel = new Label("Acciones");
-	ToggleButton duplicateButton = new ToggleButton("Duplicar");
-	ToggleButton divideButton = new ToggleButton("Dividir");
-	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+
+	Map<ToggleButton, Consumer<Drawable>> actionButtons = Map.ofEntries(
+			Map.entry(new ToggleButton("Duplicar"), f -> {
+				Drawable duplicatedFigure = f.getCopy();
+				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
+				this.figureFeaturesMap.put(duplicatedFigure, this.figureFeaturesMap.get(f).getCopy());
+				canvasState.addFigure(duplicatedFigure);
+			}),
+
+			Map.entry(new ToggleButton("Dividir"), f -> {
+				Drawable[] dividedFigures = f.split();
+				for (Drawable newFigure : dividedFigures) {
+					this.figureFeaturesMap.put(newFigure, this.figureFeaturesMap.get(f).getCopy());
+					canvasState.addFigure(newFigure);
+				};
+				this.figureFeaturesMap.remove(f);
+				canvasState.deleteFigure(f);
+			}),
+
+			Map.entry(new ToggleButton("Mov. Centro"), f -> {
+				f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
+			})
+	);
 
 	// Layers
 	Label layerLabel = new Label("Capas");
@@ -126,8 +147,6 @@ public class PaintPane extends BorderPane {
 		toolsArr.addAll(figureButtons.keySet());
 		toolsArr.add(deleteButton);
 
-		List<ToggleButton> actionsArr = List.of(duplicateButton, divideButton, moveToCenterButton);
-
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
 				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
@@ -142,10 +161,13 @@ public class PaintPane extends BorderPane {
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
-		sideButtons.addAll(actionsArr);
+		sideButtons.addAll(actionButtons.keySet());
 
-		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
-		actionsArr.forEach(action -> { action.setToggleGroup(actions); action.setMinWidth(TOOL_MIN_WIDTH); action.setCursor(Cursor.HAND); });
+		// Set toggle groups
+		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
+		actionButtons.keySet().forEach(action -> { action.setToggleGroup(actions); });
+		// Set all the minWidth and Cursors
+		Stream.of(toolsArr, actionButtons.keySet()).flatMap(Collection::stream).forEach(tool -> { tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
 
 		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
 			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
@@ -188,26 +210,7 @@ public class PaintPane extends BorderPane {
 			selectedFigure = Optional.empty();
 		});
 
-		this.bindButton(duplicateButton, f -> {
-			Drawable duplicatedFigure = f.getCopy();
-			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
-			canvasState.addFigure(duplicatedFigure);
-		});
-
-		this.bindButton(divideButton, f ->{
-			Drawable[] dividedFigures = f.split();
-			for (Drawable newFigure : dividedFigures) {
-				figureFeaturesMap.put(newFigure, figureFeaturesMap.get(f).getCopy());
-				canvasState.addFigure(newFigure);
-			};
-			figureFeaturesMap.remove(f);
-			canvasState.deleteFigure(f);
-		});
-
-		this.bindButton(moveToCenterButton, f -> {
-			f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
-		});
+		actionButtons.forEach(this::bindButton);
 
 		this.addLayerButton.setOnAction( event -> {
 			Layer<Drawable> newLayer = canvasState.addLayer();
@@ -269,29 +272,26 @@ public class PaintPane extends BorderPane {
 			return ;
 		}
 
-		Drawable newFigure = null;
+		figureButtons
+				.entrySet()
+				.stream()
+				.filter(e -> e.getKey().isSelected())
+				.map(e -> e.getValue().apply(startPoint, endPoint))
+				.findFirst()
+				.ifPresent(f -> {
+					FigureFeatures features = new FigureFeatures(
+							fillColorPicker1.getValue(),
+							fillColorPicker2.getValue(),
+							shadeOptions.getValue(),
+							strokeWidth.getValue(),
+							strokeOptions.getValue()
+					);
 
-		for (Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>> e : figureButtons.entrySet()) {
-			if (e.getKey().isSelected()) {
-				newFigure = e.getValue().apply(startPoint, endPoint);
-				break;
-			}
-		}
-
-		if (newFigure == null) return;
-
-		FigureFeatures features = new FigureFeatures(
-				fillColorPicker1.getValue(),
-				fillColorPicker2.getValue(),
-				shadeOptions.getValue(),
-				strokeWidth.getValue(),
-				strokeOptions.getValue()
-		);
-
-		figureFeaturesMap.put(newFigure, features);
-		canvasState.addFigure(newFigure);
-		startPoint = null;
-		redrawCanvas();
+					figureFeaturesMap.put(f, features);
+					canvasState.addFigure(f);
+					startPoint = null;
+					redrawCanvas();
+		});
 	}
 
 	private Point pointFromEvent(MouseEvent event) {
