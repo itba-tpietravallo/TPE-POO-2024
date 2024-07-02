@@ -5,6 +5,7 @@ import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -90,11 +91,9 @@ public class PaintPane extends BorderPane {
 
 	// Layers
 	Label layerLabel = new Label("Capas");
-	Layer<Drawable> layer1 = new Layer<>("Capa 1");
-	Layer<Drawable> layer2 = new Layer<>("Capa 2");
-	Layer<Drawable> layer3 = new Layer<>("Capa 3");
-	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(FXCollections.observableArrayList(layer1, layer2, layer3));
-
+	// todo Cambiar a <Layer>
+	ObservableList<Layer<Drawable>> layers = FXCollections.observableArrayList();
+	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(layers);
 	RadioButton showButton = new RadioButton("Mostrar");
 	RadioButton hideButton = new RadioButton("Ocultar");
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
@@ -135,7 +134,8 @@ public class PaintPane extends BorderPane {
 		);
 		
 		assignDefaultValues();
-		layerOptions.setValue(layer1);
+		layers.addAll(canvasState.getLayers());
+		layerOptions.setValue(canvasState.getLayers().getFirst());
 
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
@@ -184,7 +184,7 @@ public class PaintPane extends BorderPane {
 		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
 
 		this.bindButton(deleteButton, f -> {
-			canvasState.deleteFigure(f, layer1);
+			canvasState.deleteFigure(f);
 			selectedFigure = Optional.empty();
 		});
 
@@ -192,17 +192,17 @@ public class PaintPane extends BorderPane {
 			Drawable duplicatedFigure = f.getCopy();
 			duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
 			figureFeaturesMap.put(duplicatedFigure, figureFeaturesMap.get(f).getCopy());
-			canvasState.addFigure(duplicatedFigure, layer1);
+			canvasState.addFigure(duplicatedFigure);
 		});
 
 		this.bindButton(divideButton, f ->{
 			Drawable[] dividedFigures = f.split();
 			for (Drawable newFigure : dividedFigures) {
 				figureFeaturesMap.put(newFigure, figureFeaturesMap.get(f).getCopy());
-				canvasState.addFigure(newFigure, layer1);
+				canvasState.addFigure(newFigure);
 			};
 			figureFeaturesMap.remove(f);
-			canvasState.deleteFigure(f, layer1);
+			canvasState.deleteFigure(f);
 		});
 
 		this.bindButton(moveToCenterButton, f -> {
@@ -210,19 +210,22 @@ public class PaintPane extends BorderPane {
 		});
 
 		this.addLayerButton.setOnAction( event -> {
-			Layer<Drawable> newLayer = new Layer<>("Capa %d".formatted(canvasState.nextLayer()));
-			layerOptions.getItems().add(newLayer);
+			Layer<Drawable> newLayer = canvasState.addLayer();
+			layers.add(newLayer);
+		});
+
+		layerOptions.setOnAction( event -> {
+			canvasState.setCurrentLayer(layerOptions.getValue());
+			System.out.println("Layer seleccionada %d".formatted(layerOptions.getValue().getId()));
 		});
 
 		this.showButton.setOnAction(event -> {
 			this.hideButton.setSelected(false);
-			layer1.setHidden(false);
 			redrawCanvas();
 		});
 
 		this.hideButton.setOnAction(event -> {
 			this.showButton.setSelected(false);
-			layer1.setHidden(true);
 			redrawCanvas();
 		});
 
@@ -285,7 +288,7 @@ public class PaintPane extends BorderPane {
 		);
 
 		figureFeaturesMap.put(newFigure, features);
-		canvasState.addFigure(newFigure, layer1);
+		canvasState.addFigure(newFigure);
 		startPoint = null;
 		redrawCanvas();
 	}

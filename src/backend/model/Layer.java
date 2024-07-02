@@ -6,14 +6,17 @@ import java.util.Objects;
 
 public class Layer<T> {
 
-    private final String layer;
-    private boolean isHidden;
-    private final List<T> figures;
+    private final int id;
+    private boolean visible;
+    private final List<T> figures = new ArrayList<>();
 
-    public Layer(String layer) {
-        this.layer = layer;
-        this.isHidden = false;
-        this.figures = new ArrayList<>();
+    public Layer(int id) {
+        this.id = id;
+        this.visible = true;
+    }
+
+    public int getId(){
+        return this.id;
     }
 
     public void addFigure(T figure) {
@@ -28,27 +31,27 @@ public class Layer<T> {
         return figures;
     }
 
-    public void setHidden(boolean h) {
-        this.isHidden = h;
+    public void setVisible(boolean h) {
+        this.visible = h;
     }
 
-    public boolean isHidden() {
-        return this.isHidden;
+    public boolean isVisible() {
+        return this.visible;
     }
 
     @Override
     public boolean equals(Object o) {
         return o instanceof Layer<?> l &&
-                this.layer.equals(l.layer);
+                this.id == (l.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(layer, figures);
+        return Objects.hash(this.id, figures);
     }
 
     @Override
     public String toString() {
-        return this.layer;
+        return "Capa %d".formatted(this.id);
     }
 }
