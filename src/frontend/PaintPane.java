@@ -90,8 +90,6 @@ public class PaintPane extends BorderPane {
 
 	// Layers
 	Label layerLabel = new Label("Capas");
-	// todo Cambiar a <Layer>
-
 	Layer<Drawable> layer1 = new Layer<>("Capa 1");
 	Layer<Drawable> layer2 = new Layer<>("Capa 2");
 	Layer<Drawable> layer3 = new Layer<>("Capa 3");
@@ -111,7 +109,7 @@ public class PaintPane extends BorderPane {
 	// StatusBar
 	StatusPane statusPane;
 
-	// Colores de relleno de cada figura
+	// Features by figure map
 	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
 	Map<ToggleButton, BiFunction<Point, Point, Drawable>> figureButtons = Map.ofEntries(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
@@ -135,8 +133,7 @@ public class PaintPane extends BorderPane {
 				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
 		);
-
-		// @todo Look into type-safe heterogeneous containers
+		
 		assignDefaultValues();
 		layerOptions.setValue(layer1);
 
