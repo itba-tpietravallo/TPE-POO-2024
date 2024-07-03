@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class PaintPane extends BorderPane {
@@ -87,7 +88,7 @@ public class PaintPane extends BorderPane {
 	// Actions
 	Label actionLabel = new Label("Acciones");
 
-	Map<ToggleButton, Consumer<Drawable>> actionButtons = Map.ofEntries(
+	List<Map.Entry<ToggleButton, Consumer<Drawable>>> actionButtons = List.of(
 			Map.entry(new ToggleButton("Duplicar"), f -> {
 				Drawable duplicatedFigure = f.getCopy();
 				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
@@ -131,7 +132,7 @@ public class PaintPane extends BorderPane {
 
 	// Features by figure map
 	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
-	Map<ToggleButton, BiFunction<Point, Point, Drawable>> figureButtons = Map.ofEntries(
+	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
 			Map.entry(circleButton,		DrawableCircle::createFromPoints),
 			Map.entry(squareButton, 	DrawableSquare::createFromPoints),
@@ -144,7 +145,7 @@ public class PaintPane extends BorderPane {
 
 		List<ToggleButton> toolsArr = new ArrayList<>();
 		toolsArr.add(selectionButton);
-		toolsArr.addAll(figureButtons.keySet());
+		toolsArr.addAll(figureButtons.stream().map(Map.Entry::getKey).toList());
 		toolsArr.add(deleteButton);
 
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
@@ -161,13 +162,19 @@ public class PaintPane extends BorderPane {
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
-		sideButtons.addAll(actionButtons.keySet());
+		sideButtons.addAll(actionButtons.stream().map(Map.Entry::getKey).toList());
 
 		// Set toggle groups
 		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
-		actionButtons.keySet().forEach(action -> { action.setToggleGroup(actions); });
+		actionButtons.forEach(e -> { e.getKey().setToggleGroup(actions); });
+
 		// Set all the minWidth and Cursors
-		Stream.of(toolsArr, actionButtons.keySet()).flatMap(Collection::stream).forEach(tool -> { tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
+		Stream.of(toolsArr.stream(), actionButtons.stream().map(Map.Entry::getKey))
+				.flatMap(Function.identity())
+				.forEach(tool -> {
+					tool.setMinWidth(TOOL_MIN_WIDTH);
+					tool.setCursor(Cursor.HAND);
+				});
 
 		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
 			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
@@ -210,7 +217,7 @@ public class PaintPane extends BorderPane {
 			selectedFigure = Optional.empty();
 		});
 
-		actionButtons.forEach(this::bindButton);
+		actionButtons.forEach(x -> this.bindButton(x.getKey(), x.getValue()));
 
 		this.addLayerButton.setOnAction( event -> {
 			Layer<Drawable> newLayer = canvasState.addLayer();
@@ -273,7 +280,6 @@ public class PaintPane extends BorderPane {
 		}
 
 		figureButtons
-				.entrySet()
 				.stream()
 				.filter(e -> e.getKey().isSelected())
 				.map(e -> e.getValue().apply(startPoint, endPoint))
