@@ -355,8 +355,9 @@ public class PaintPane extends BorderPane {
 		button.setOnAction((x) -> { action.run(); redrawCanvas(); });
 	}
 
-	private void bindButtonToSelectedFigure(ButtonBase button, Consumer<Drawable> action) {
-		button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
+	private void bindButtonToSelectedFigure(ToggleButton button, Consumer<Drawable> action) {
+		EventHandler<Event> eventHandler = this.runAndRedrawIfSelectedFigurePresent(action);
+		button.setOnAction(event -> {button.setSelected(false); eventHandler.handle(event);});
 	}
 
 	private <T> void bindComboBoxToSelectedFigure(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
