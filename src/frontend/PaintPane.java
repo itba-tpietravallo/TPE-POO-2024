@@ -35,7 +35,7 @@ public class PaintPane extends BorderPane {
 
 	//VBox features
 	private static final int VBOX_SPACING = 10, VBOX_PREF_WIDTH = 100, VBOX_LINE_WIDTH = 1;
-	private static final String VBOX_BACKGROUND_COLOR = "-fx-background-color: #999";
+	private static final String BOX_BACKGROUND_COLOR = "-fx-background-color: #999";
 
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
@@ -188,16 +188,18 @@ public class PaintPane extends BorderPane {
 		strokeWidth.setShowTickLabels(true);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
-		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
+		buttonsBox.setStyle(BOX_BACKGROUND_COLOR);
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
 		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, layerOptions, showButton, hideButton, addLayerButton, deleteLayerButton));
 
+		setCurrentLayerMode();
+
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
 		topBox.setPadding(new Insets(OFFSETS_VALUE));
-		topBox.setStyle(VBOX_BACKGROUND_COLOR);
+		topBox.setStyle(BOX_BACKGROUND_COLOR);
 		topBox.setAlignment(Pos.CENTER);
 
 		canvas.setOnMousePressed(this::onMousePressed);
@@ -226,16 +228,17 @@ public class PaintPane extends BorderPane {
 
 		layerOptions.setOnAction( event -> {
 			canvasState.setCurrentLayer(layerOptions.getValue());
+			setCurrentLayerMode();
 		});
 
 		this.showButton.setOnAction(event -> {
-			this.hideButton.setSelected(false);
+			setCurrentLayerMode(true);
 			canvasState.showCurrentLayer();
 			redrawCanvas();
 		});
 
 		this.hideButton.setOnAction(event -> {
-			this.showButton.setSelected(false);
+			setCurrentLayerMode(false);
 			canvasState.hideCurrentLayer();
 			redrawCanvas();
 		});
@@ -347,7 +350,7 @@ public class PaintPane extends BorderPane {
 		});
 	}
 
-	private <T> void bindButton(ButtonBase button, Consumer<Drawable> action) {
+	private void bindButton(ButtonBase button, Consumer<Drawable> action) {
 		button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
 	}
 	private <T> void bindComboBox(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
@@ -386,5 +389,14 @@ public class PaintPane extends BorderPane {
 
 	private void assignDefaultValues(){
 		assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
+	}
+
+	private void setCurrentLayerMode(){
+		setCurrentLayerMode(layerOptions.getValue().isVisible());
+	}
+
+	private void setCurrentLayerMode(boolean visible){
+		this.showButton.setSelected(visible);
+		this.hideButton.setSelected(!visible);
 	}
 }
