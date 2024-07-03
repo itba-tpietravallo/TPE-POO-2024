@@ -5,6 +5,7 @@ import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -22,6 +23,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class PaintPane extends BorderPane {
@@ -33,7 +35,7 @@ public class PaintPane extends BorderPane {
 
 	//VBox features
 	private static final int VBOX_SPACING = 10, VBOX_PREF_WIDTH = 100, VBOX_LINE_WIDTH = 1;
-	private static final String VBOX_BACKGROUND_COLOR = "-fx-background-color: #999";
+	private static final String BOX_BACKGROUND_COLOR = "-fx-background-color: #999";
 
 	//Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
@@ -86,7 +88,7 @@ public class PaintPane extends BorderPane {
 	// Actions
 	Label actionLabel = new Label("Acciones");
 
-	Map<ToggleButton, Consumer<Drawable>> actionButtons = Map.ofEntries(
+	List<Map.Entry<ToggleButton, Consumer<Drawable>>> actionButtons = List.of(
 			Map.entry(new ToggleButton("Duplicar"), f -> {
 				Drawable duplicatedFigure = f.getCopy();
 				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
@@ -112,7 +114,8 @@ public class PaintPane extends BorderPane {
 	// Layers
 	Label layerLabel = new Label("Capas");
 	// todo Cambiar a <Layer>
-	ChoiceBox<String> layerOptions = new ChoiceBox<>(FXCollections.observableArrayList("Capa 1", "Capa 2", "Capa 3"));
+	ObservableList<Layer<Drawable>> layers = FXCollections.observableArrayList();
+	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(layers);
 	RadioButton showButton = new RadioButton("Mostrar");
 	RadioButton hideButton = new RadioButton("Ocultar");
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
@@ -127,9 +130,9 @@ public class PaintPane extends BorderPane {
 	// StatusBar
 	StatusPane statusPane;
 
-	// Colores de relleno de cada figura
+	// Features by figure map
 	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
-	Map<ToggleButton, BiFunction<Point, Point, Drawable>> figureButtons = Map.ofEntries(
+	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
 			Map.entry(circleButton,		DrawableCircle::createFromPoints),
 			Map.entry(squareButton, 	DrawableSquare::createFromPoints),
@@ -142,29 +145,36 @@ public class PaintPane extends BorderPane {
 
 		List<ToggleButton> toolsArr = new ArrayList<>();
 		toolsArr.add(selectionButton);
-		toolsArr.addAll(figureButtons.keySet());
+		toolsArr.addAll(figureButtons.stream().map(Map.Entry::getKey).toList());
 		toolsArr.add(deleteButton);
 
 		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
 				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
 		);
-
-		// @todo Look into type-safe heterogeneous containers
+		
 		assignDefaultValues();
+		layers.addAll(canvasState.getLayers());
+		layerOptions.setValue(canvasState.getLayers().getFirst());
 
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
-		sideButtons.addAll(actionButtons.keySet());
+		sideButtons.addAll(actionButtons.stream().map(Map.Entry::getKey).toList());
 
 		// Set toggle groups
 		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
-		actionButtons.keySet().forEach(action -> { action.setToggleGroup(actions); });
+		actionButtons.forEach(e -> { e.getKey().setToggleGroup(actions); });
+
 		// Set all the minWidth and Cursors
-		Stream.of(toolsArr, actionButtons.keySet()).flatMap(Collection::stream).forEach(tool -> { tool.setMinWidth(TOOL_MIN_WIDTH); tool.setCursor(Cursor.HAND); });
+		Stream.of(toolsArr.stream(), actionButtons.stream().map(Map.Entry::getKey))
+				.flatMap(Function.identity())
+				.forEach(tool -> {
+					tool.setMinWidth(TOOL_MIN_WIDTH);
+					tool.setCursor(Cursor.HAND);
+				});
 
 		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
 			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
@@ -178,16 +188,18 @@ public class PaintPane extends BorderPane {
 		strokeWidth.setShowTickLabels(true);
 
 		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
-		buttonsBox.setStyle(VBOX_BACKGROUND_COLOR);
+		buttonsBox.setStyle(BOX_BACKGROUND_COLOR);
 		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
-		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, showButton, hideButton, addLayerButton, deleteLayerButton));
+		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, layerOptions, showButton, hideButton, addLayerButton, deleteLayerButton));
+
+		setCurrentLayerMode();
 
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
 		topBox.setPadding(new Insets(OFFSETS_VALUE));
-		topBox.setStyle(VBOX_BACKGROUND_COLOR);
+		topBox.setStyle(BOX_BACKGROUND_COLOR);
 		topBox.setAlignment(Pos.CENTER);
 
 		canvas.setOnMousePressed(this::onMousePressed);
@@ -207,7 +219,29 @@ public class PaintPane extends BorderPane {
 			selectedFigure = Optional.empty();
 		});
 
-		actionButtons.forEach(this::bindButton);
+		actionButtons.forEach(x -> this.bindButton(x.getKey(), x.getValue()));
+
+		this.addLayerButton.setOnAction( event -> {
+			Layer<Drawable> newLayer = canvasState.addLayer();
+			layers.add(newLayer);
+		});
+
+		layerOptions.setOnAction( event -> {
+			canvasState.setCurrentLayer(layerOptions.getValue());
+			setCurrentLayerMode();
+		});
+
+		this.showButton.setOnAction(event -> {
+			setCurrentLayerMode(true);
+			canvasState.showCurrentLayer();
+			redrawCanvas();
+		});
+
+		this.hideButton.setOnAction(event -> {
+			setCurrentLayerMode(false);
+			canvasState.hideCurrentLayer();
+			redrawCanvas();
+		});
 
 		setTop(topBox);
 		setLeft(buttonsBox);
@@ -228,7 +262,7 @@ public class PaintPane extends BorderPane {
 
 			// Set stroke
 			features.getStroke().setStroke(gc, features.getStrokeWidth(), selectedFigure.isPresent() && selectedFigure.get().equals(figure) );
-
+			
 			// Draw the figure
 			figure.draw(gc);
 		}
@@ -249,7 +283,6 @@ public class PaintPane extends BorderPane {
 		}
 
 		figureButtons
-				.entrySet()
 				.stream()
 				.filter(e -> e.getKey().isSelected())
 				.map(e -> e.getValue().apply(startPoint, endPoint))
@@ -317,7 +350,7 @@ public class PaintPane extends BorderPane {
 		});
 	}
 
-	private <T> void bindButton(ButtonBase button, Consumer<Drawable> action) {
+	private void bindButton(ButtonBase button, Consumer<Drawable> action) {
 		button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
 	}
 	private <T> void bindComboBox(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
@@ -351,9 +384,19 @@ public class PaintPane extends BorderPane {
 		fillColorPicker2.setValue(color2);
 		strokeWidth.setValue(width);
 		strokeOptions.setValue(stroke);
+		showButton.setSelected(true);
 	}
 
 	private void assignDefaultValues(){
 		assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
+	}
+
+	private void setCurrentLayerMode(){
+		setCurrentLayerMode(layerOptions.getValue().isVisible());
+	}
+
+	private void setCurrentLayerMode(boolean visible){
+		this.showButton.setSelected(visible);
+		this.hideButton.setSelected(!visible);
 	}
 }
