@@ -71,4 +71,7 @@ public class CanvasState<T extends Figure> {
         layers.get(currentLayerId).setVisible(true);
     }
 
+    public void deleteLayer(Layer<T> layer){
+        layers.remove(layer);
+    }
 }

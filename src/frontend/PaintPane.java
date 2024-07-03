@@ -243,6 +243,11 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
+		this.deleteLayerButton.setOnAction(event -> {
+			canvasState.deleteLayer(layerOptions.getValue());
+			redrawCanvas();
+		});
+
 		setTop(topBox);
 		setLeft(buttonsBox);
 		setRight(canvas);
