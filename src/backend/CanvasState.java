@@ -49,7 +49,10 @@ public class CanvasState<T extends Figure> {
     }
 
     public void addFigure(T figure) {
-        this.layers.get(currentLayerId).addFigure(figure);
+        Layer<T> layer = this.layers.get(currentLayerId);
+        if(layer.isVisible()){
+            layer.addFigure(figure);
+        }
     }
 
     public void deleteFigure(T figure) {
