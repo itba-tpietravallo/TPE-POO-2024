@@ -37,7 +37,9 @@ public class CanvasState<T extends Figure> {
         return newLayer;
     }
 
-    // todo make deletelayer behaviour
+    public void deleteLayer(Layer<T> layer){
+        layers.remove(layer);
+    }
 
     public void addFigure(T figure) {
         this.layers.get(currentLayerId).addFigure(figure);
@@ -69,9 +71,5 @@ public class CanvasState<T extends Figure> {
 
     public void showCurrentLayer() {
         layers.get(currentLayerId).setVisible(true);
-    }
-
-    public void deleteLayer(Layer<T> layer){
-        layers.remove(layer);
     }
 }

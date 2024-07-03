@@ -224,6 +224,7 @@ public class PaintPane extends BorderPane {
 		this.addLayerButton.setOnAction( event -> {
 			Layer<Drawable> newLayer = canvasState.addLayer();
 			layers.add(newLayer);
+			layerOptions.setValue(newLayer);
 		});
 
 		layerOptions.setOnAction( event -> {
