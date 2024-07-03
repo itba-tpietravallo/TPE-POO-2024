@@ -2,9 +2,8 @@ package backend.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class Layer<T> {
+public class Layer<T> implements Comparable<Layer<T>> {
     private static int CURRENT_LAYER_ID = 1;
     private final int id = CURRENT_LAYER_ID++;
     private boolean visible = true;
@@ -28,9 +27,12 @@ public class Layer<T> {
     public boolean isVisible() {
         return this.visible;
     }
-
     @Override
     public String toString() {
         return "Capa %d".formatted(this.id);
+    }
+    @Override
+    public int compareTo(Layer<T> o) {
+        return this.id - o.id;
     }
 }

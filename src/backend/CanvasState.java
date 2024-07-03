@@ -68,7 +68,10 @@ public class CanvasState<T extends Figure> {
     }
 
     public Stream<T> intersectingFigures(Point location) {
-        return layers.stream().flatMap(l -> l.figures().stream()).filter(f -> f.pointBelongs(location) );
+        return layers.stream()
+                .sorted(Comparator.reverseOrder())
+                .flatMap(l -> l.figures().stream())
+                .filter(f -> f.pointBelongs(location) );
     }
 
     public Optional<T> intersectsAnyFigure(Point location) {
