@@ -338,16 +338,17 @@ public class PaintPane extends BorderPane {
 		});
 	}
 
-	private void bindButtonToLayerAction(ButtonBase button, Runnable action) {
+	private void bindButtonToLayerAction(ToggleButton button, Runnable action) {
 		button.setOnAction(x -> {
 			action.run();
 			layers.setAll(canvasState.getLayers());
 			layerOptions.setValue(canvasState.getCurrentLayer());
 			setCurrentLayerMode();
+			button.setSelected(false);
 		});
 	}
 
-	private void bindButtonToLayerActionAndRedraw(ButtonBase button, Runnable action) {
+	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
 		this.bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
 	}
 
