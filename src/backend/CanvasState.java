@@ -27,18 +27,25 @@ public class CanvasState<T extends Figure> {
         this.currentLayerId = newIdx < 0 ? this.currentLayerId : newIdx;
     }
 
+    public Layer<T> getCurrentLayer() {
+        return this.layers.get(currentLayerId);
+    }
+
     public List<Layer<T>> getLayers() {
         return layers;
     }
 
-    public Layer<T> addLayer() {
+    public void addLayer() {
         Layer<T> newLayer = new Layer<>();
         this.layers.add(newLayer);
-        return newLayer;
+        this.currentLayerId = this.layers.size() - 1;
     }
 
-    public void deleteLayer(Layer<T> layer){
-        layers.remove(layer);
+    public void deleteLayer(){
+        if (currentLayerId >= STARTING_LAYERS) {
+            layers.remove(currentLayerId);
+            currentLayerId = Math.min(layers.size() - 1, currentLayerId);
+        }
     }
 
     public void addFigure(T figure) {

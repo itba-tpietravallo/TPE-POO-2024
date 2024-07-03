@@ -208,46 +208,28 @@ public class PaintPane extends BorderPane {
 		canvas.setOnMouseClicked(this::onMouseClicked);
 		canvas.setOnMouseDragged(this::onMouseDragged);
 
-		this.bindComboBox(fillColorPicker1, FigureFeatures::setColor1);
-		this.bindComboBox(fillColorPicker2, FigureFeatures::setColor2);
-		this.bindChoiceBox(shadeOptions, FigureFeatures::setShade);
-		this.bindChoiceBox(strokeOptions, FigureFeatures::setStroke);
-		this.bindSlider(strokeWidth, FigureFeatures::setStrokeWidth);
+		this.bindComboBoxToSelectedFigure(fillColorPicker1, FigureFeatures::setColor1);
+		this.bindComboBoxToSelectedFigure(fillColorPicker2, FigureFeatures::setColor2);
+		this.bindChoiceBoxToSelectedFigure(shadeOptions, FigureFeatures::setShade);
+		this.bindChoiceBoxToSelectedFigure(strokeOptions, FigureFeatures::setStroke);
+		this.bindSliderToSelectedFigure(strokeWidth, FigureFeatures::setStrokeWidth);
 
-		this.bindButton(deleteButton, f -> {
+		this.bindButtonToSelectedFigure(deleteButton, f -> {
 			canvasState.deleteFigure(f);
 			selectedFigure = Optional.empty();
 		});
 
-		actionButtons.forEach(x -> this.bindButton(x.getKey(), x.getValue()));
-
-		this.addLayerButton.setOnAction( event -> {
-			Layer<Drawable> newLayer = canvasState.addLayer();
-			layers.add(newLayer);
-			layerOptions.setValue(newLayer);
-		});
+		actionButtons.forEach(x -> this.bindButtonToSelectedFigure(x.getKey(), x.getValue()));
 
 		layerOptions.setOnAction( event -> {
 			canvasState.setCurrentLayer(layerOptions.getValue());
 			setCurrentLayerMode();
 		});
 
-		this.showButton.setOnAction(event -> {
-			setCurrentLayerMode(true);
-			canvasState.showCurrentLayer();
-			redrawCanvas();
-		});
-
-		this.hideButton.setOnAction(event -> {
-			setCurrentLayerMode(false);
-			canvasState.hideCurrentLayer();
-			redrawCanvas();
-		});
-
-		this.deleteLayerButton.setOnAction(event -> {
-			canvasState.deleteLayer(layerOptions.getValue());
-			redrawCanvas();
-		});
+		this.bindButtonToRedraw(showButton, () -> setCurrentLayerMode(true));
+		this.bindButtonToRedraw(hideButton, () -> setCurrentLayerMode(false));
+		this.bindButtonToLayerAction(addLayerButton, canvasState::addLayer);
+		this.bindButtonToLayerActionAndRedraw(deleteLayerButton, canvasState::deleteLayer);
 
 		setTop(topBox);
 		setLeft(buttonsBox);
@@ -356,22 +338,40 @@ public class PaintPane extends BorderPane {
 		});
 	}
 
-	private void bindButton(ButtonBase button, Consumer<Drawable> action) {
+	private void bindButtonToLayerAction(ButtonBase button, Runnable action) {
+		button.setOnAction(x -> {
+			action.run();
+			layers.setAll(canvasState.getLayers());
+			layerOptions.setValue(canvasState.getCurrentLayer());
+			setCurrentLayerMode();
+		});
+	}
+
+	private void bindButtonToLayerActionAndRedraw(ButtonBase button, Runnable action) {
+		this.bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
+	}
+
+	private void bindButtonToRedraw(ButtonBase button, Runnable action) {
+		button.setOnAction((x) -> { action.run(); redrawCanvas(); });
+	}
+
+	private void bindButtonToSelectedFigure(ButtonBase button, Consumer<Drawable> action) {
 		button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
 	}
-	private <T> void bindComboBox(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
+
+	private <T> void bindComboBoxToSelectedFigure(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
 		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
 		}));
 	}
 
-	private <T> void bindChoiceBox(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
+	private <T> void bindChoiceBoxToSelectedFigure(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
 		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
 		}));
 	}
 
-	private void bindSlider(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
+	private void bindSliderToSelectedFigure(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
 		slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> {
 			featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue());
 		}));
@@ -398,10 +398,11 @@ public class PaintPane extends BorderPane {
 	}
 
 	private void setCurrentLayerMode(){
-		setCurrentLayerMode(layerOptions.getValue().isVisible());
+		setCurrentLayerMode(canvasState.getCurrentLayer().isVisible());
 	}
 
 	private void setCurrentLayerMode(boolean visible){
+		this.canvasState.getCurrentLayer().setVisible(visible);
 		this.showButton.setSelected(visible);
 		this.hideButton.setSelected(!visible);
 	}
