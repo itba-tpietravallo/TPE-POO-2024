@@ -1,13 +1,10 @@
 package frontend;
 
-import backend.CanvasState;
 import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -16,13 +13,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.input.MouseEvent;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -76,7 +69,6 @@ public class PaintPane extends BorderPane {
 
 	// Layers
 	Label layerLabel = new Label("Capas");
-	// todo Cambiar a <Layer>
 	ObservableList<Layer<Drawable>> layers = FXCollections.observableArrayList();
 	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(layers);
 	RadioButton showButton = new RadioButton("Mostrar");
@@ -84,8 +76,6 @@ public class PaintPane extends BorderPane {
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
 	ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
 
-	// Dibujar una figura
-	Point startPoint;
 	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
 			Map.entry(circleButton,		DrawableCircle::createFromPoints),
@@ -112,8 +102,8 @@ public class PaintPane extends BorderPane {
 		sideButtons.addAll(actionButtons);
 
 		// Set toggle groups
-		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
-		actionButtons.forEach(e -> { e.setToggleGroup(actions); });
+		toolsArr.forEach(tool -> tool.setToggleGroup(tools));
+		actionButtons.forEach(e -> e.setToggleGroup(actions));
 
 		// Set all the minWidth and Cursors
 		Stream.of(toolsArr.stream(), actionButtons.stream())
@@ -153,7 +143,7 @@ public class PaintPane extends BorderPane {
 		setRight(canvas);
 	}
 
-	void redrawCanvas(Iterable<Drawable> figures, Map<Drawable, FigureFeatures> figureFeaturesMap, Optional<Drawable> selectedFigure) {
+	void redrawCanvas(Iterable<Drawable> figures, Map<Drawable, FigureFeatures> figureFeaturesMap) {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : figures) {
 			// Get all the figures features
@@ -166,7 +156,7 @@ public class PaintPane extends BorderPane {
 			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
 
 			// Set stroke
-			features.getStroke().setStroke(gc, features.getStrokeWidth(), selectedFigure.isPresent() && selectedFigure.get().equals(figure) );
+			features.getStroke().setStroke(gc, features.getStrokeWidth(), features.isSelected());
 			
 			// Draw the figure
 			figure.draw(gc);

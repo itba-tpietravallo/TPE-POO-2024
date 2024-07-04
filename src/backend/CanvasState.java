@@ -77,12 +77,4 @@ public class CanvasState<T extends Figure> {
     public Optional<T> intersectsAnyFigure(Point location) {
         return this.intersectingFigures(location).findAny();
     }
-
-    public void hideCurrentLayer() {
-        layers.get(currentLayerId).setVisible(false);
-    }
-
-    public void showCurrentLayer() {
-        layers.get(currentLayerId).setVisible(true);
-    }
 }
