@@ -29,11 +29,24 @@ class PaintPane {
  Map<Drawable, FigureFeatures> figureFeaturesMap;
 }
 
+class MainFrame {
+
+}
+
+class StatusPane {
+
+}
+
+
+MainFrame *-- PaintPane
+MainFrame *-- StatusPane
+MainFrame *-- Controller
 Drawable <|-- Figure
 PaintPane *-- FigureFeatures
-PaintPane *-- Controller
 Controller *- Drawable
-Controller *-- CanvasState
+Controller .. CanvasState
+Controller .. PaintPane
+Controller .. StatusPane
 }
 
 @enduml
