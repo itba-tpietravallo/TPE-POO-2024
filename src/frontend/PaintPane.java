@@ -123,14 +123,8 @@ public class PaintPane extends BorderPane {
 	// Start point to draw figure
 	Point startPoint;
 
-	// Selected figure
-	Optional<Drawable> selectedFigure = Optional.empty();
-
 	// StatusBar
 	StatusPane statusPane;
-
-	// Features by figure map
-	Map<Figure, FigureFeatures> figureFeaturesMap = new HashMap<>();
 	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
 			Map.entry(circleButton,		DrawableCircle::createFromPoints),
@@ -249,58 +243,6 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
-	boolean selectionMode() {
-		return this.selectionButton.isSelected();
-	}
-
-	private <T extends Event> EventHandler<T> runAndRedrawIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
-		return (event) -> selectedFigure.ifPresent(f -> {
-			figureConsumer.accept(f);
-			redrawCanvas();
-		});
-	}
-
-	private void bindButtonToLayerAction(ToggleButton button, Runnable action) {
-		button.setOnAction(x -> {
-			action.run();
-			layers.setAll(canvasState.getLayers());
-			layerOptions.setValue(canvasState.getCurrentLayer());
-			setCurrentLayerMode();
-			button.setSelected(false);
-		});
-	}
-
-	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
-		this.bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
-	}
-
-	private void bindButtonToRedraw(ButtonBase button, Runnable action) {
-		button.setOnAction((x) -> { action.run(); redrawCanvas(); });
-	}
-
-	private void bindButtonToSelectedFigure(ToggleButton button, Consumer<Drawable> action) {
-		EventHandler<Event> eventHandler = this.runAndRedrawIfSelectedFigurePresent(action);
-		button.setOnAction(event -> {button.setSelected(false); eventHandler.handle(event);});
-	}
-
-	private <T> void bindComboBoxToSelectedFigure(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
-			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
-		}));
-	}
-
-	private <T> void bindChoiceBoxToSelectedFigure(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-		box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> {
-			featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue());
-		}));
-	}
-
-	private void bindSliderToSelectedFigure(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
-		slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> {
-			featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue());
-		}));
-	}
-
 	void showValues(Optional<Drawable> selectedFigure){
 		selectedFigure.ifPresentOrElse(f -> {
 			FigureFeatures features = figureFeaturesMap.get(f);
@@ -319,15 +261,5 @@ public class PaintPane extends BorderPane {
 
 	private void assignDefaultValues(){
 		assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
-	}
-
-	private void setCurrentLayerMode(){
-		setCurrentLayerMode(canvasState.getCurrentLayer().isVisible());
-	}
-
-	private void setCurrentLayerMode(boolean visible){
-		this.canvasState.getCurrentLayer().setVisible(visible);
-		this.showButton.setSelected(visible);
-		this.hideButton.setSelected(!visible);
 	}
 }
