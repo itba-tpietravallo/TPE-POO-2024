@@ -201,12 +201,6 @@ public class PaintPane extends BorderPane {
 		topBox.setStyle(BOX_BACKGROUND_COLOR);
 		topBox.setAlignment(Pos.CENTER);
 
-		canvas.setOnMousePressed(this::onMousePressed);
-		canvas.setOnMouseReleased(this::onMouseReleased);
-		canvas.setOnMouseMoved(this::onMouseMoved);
-		canvas.setOnMouseClicked(this::onMouseClicked);
-		canvas.setOnMouseDragged(this::onMouseDragged);
-
 		this.bindComboBoxToSelectedFigure(fillColorPicker1, FigureFeatures::setColor1);
 		this.bindComboBoxToSelectedFigure(fillColorPicker2, FigureFeatures::setColor2);
 		this.bindChoiceBoxToSelectedFigure(shadeOptions, FigureFeatures::setShade);
@@ -255,79 +249,8 @@ public class PaintPane extends BorderPane {
 		}
 	}
 
-	private void onMousePressed(MouseEvent event) {
-		startPoint = this.pointFromEvent(event);
-	}
-	private void onMouseReleased(MouseEvent event) {
-		Point endPoint = this.pointFromEvent(event);
-
-		if(startPoint == null) {
-			return ;
-		}
-
-		if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-			return ;
-		}
-
-		figureButtons
-				.stream()
-				.filter(e -> e.getKey().isSelected())
-				.map(e -> e.getValue().apply(startPoint, endPoint))
-				.findFirst()
-				.ifPresent(f -> {
-					FigureFeatures features = new FigureFeatures(
-							fillColorPicker1.getValue(),
-							fillColorPicker2.getValue(),
-							shadeOptions.getValue(),
-							strokeWidth.getValue(),
-							strokeOptions.getValue()
-					);
-
-					figureFeaturesMap.put(f, features);
-					canvasState.addFigure(f);
-					startPoint = null;
-					redrawCanvas();
-		});
-	}
-
-	private Point pointFromEvent(MouseEvent event) {
-		return new Point(event.getX(), event.getY());
-	}
-	private void onMouseMoved(MouseEvent event) {
-		updateStatusLabel(pointFromEvent(event));
-	}
-	private void onMouseClicked(MouseEvent event) {
-		Point location = this.pointFromEvent(event);
-		this.updateStatusLabel(location, "Ninguna figura encontrada");
-		if(this.selectionMode()) {
-			selectedFigure = canvasState.intersectingFigures(location).findFirst();
-			showValues(selectedFigure);
-			redrawCanvas();
-		}
-	}
-	private void onMouseDragged(MouseEvent event) {
-		if(this.selectionMode()) {
-			Point eventPoint = this.pointFromEvent(event);
-			double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
-			double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-			selectedFigure.ifPresent(f -> { f.move(diffX, diffY); redrawCanvas(); });
-		}
-	}
-
-	private boolean selectionMode() {
+	boolean selectionMode() {
 		return this.selectionButton.isSelected();
-	}
-	private void updateStatusLabel(Point location) {
-		this.updateStatusLabel(location, location.toString());
-	}
-	private void updateStatusLabel(Point location, String defaultText) {
-		canvasState.intersectsAnyFigure(location).ifPresentOrElse(x -> {
-			statusPane.updateStatus(
-					canvasState.intersectingFigures(location)
-							.map(Drawable::toString)
-							.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
-			);
-		}, () -> { statusPane.updateStatus(defaultText); });
 	}
 
 	private <T extends Event> EventHandler<T> runAndRedrawIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
@@ -378,7 +301,7 @@ public class PaintPane extends BorderPane {
 		}));
 	}
 
-	private void showValues(Optional<Drawable> selectedFigure){
+	void showValues(Optional<Drawable> selectedFigure){
 		selectedFigure.ifPresentOrElse(f -> {
 			FigureFeatures features = figureFeaturesMap.get(f);
 			assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
