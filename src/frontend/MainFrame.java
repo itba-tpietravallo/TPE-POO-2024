@@ -7,9 +7,12 @@ import javafx.scene.layout.VBox;
 public class MainFrame<T extends Drawable> extends VBox {
 
     public MainFrame(CanvasState<Drawable> canvasState) {
-        getChildren().add(new AppMenuBar());
         StatusPane statusPane = new StatusPane();
-        getChildren().add(new PaintPane(canvasState, statusPane));
+        PaintPane paintPane = new PaintPane(canvasState, statusPane);
+        Controller controller = new Controller(canvasState, statusPane, paintPane);
+
+        getChildren().add(new AppMenuBar());
+        getChildren().add(paintPane);
         getChildren().add(statusPane);
     }
 
