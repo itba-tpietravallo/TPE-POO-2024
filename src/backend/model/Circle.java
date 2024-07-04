@@ -2,7 +2,7 @@ package backend.model;
 
 public class Circle extends Ellipse {
     public Circle(Point centerPoint, double radius) {
-        super(centerPoint, radius, radius);
+        super(centerPoint, 2 * radius, 2 * radius);
     }
 
     @Override
@@ -10,7 +10,7 @@ public class Circle extends Ellipse {
         return String.format("Círculo [Centro: %s, Radio: %.2f]", super.getCenterPoint(), super.getsMayorAxis());
     }
     public double getRadius() {
-        return super.getsMayorAxis();
+        return super.getsMayorAxis() / 2;
     }
 
     @Override
@@ -20,6 +20,6 @@ public class Circle extends Ellipse {
     }
     @Override
     public double[] divideAxis(){
-        return new double[]{this.getRadius() / 4};
+        return new double[]{this.getRadius() / 2};
     }
 }
