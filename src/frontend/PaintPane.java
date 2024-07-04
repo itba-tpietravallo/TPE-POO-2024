@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 public class PaintPane extends BorderPane {
 	//Canvas dimensions
-	private static final int CANVAS_WIDTH = 800, CANVAS_HEIGHT = 600;
+	final int CANVAS_WIDTH = 800, CANVAS_HEIGHT = 600;
 
 	//Tool width
 	private static final int TOOL_MIN_WIDTH = 90;
@@ -41,23 +41,7 @@ public class PaintPane extends BorderPane {
 	private static final int OFFSETS_VALUE = 5;
 
 	// Stroke dimensions
-	private static final int STROKE_MIN = 0, STROKE_MAX = 10, DEFAULT_STROKE_WIDTH = 5;
-
-	// Duplicate offset
-	private static final int DUPLICATE_OFFSET = 12;
-
-	// Default fill colors
-	private static final Color DEFAULT_FILL_COLOR_1 = Color.CYAN;
-	private static final Color DEFAULT_FILL_COLOR_2 = Color.web("ccffcc");
-
-	// Default shade
-	private static final Shade DEFAULT_SHADE = Shade.NOSHADE;
-
-	// Default stroke
-	private static final Stroke DEFAULT_STROKE_TYPE = Stroke.NORMAL;
-
-	// BackEnd
-	CanvasState<Drawable> canvasState;
+	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -74,42 +58,21 @@ public class PaintPane extends BorderPane {
 	// Shade
 	Label shadeLabel = new Label("Sombra");
 	ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
-
 	// Selector de color de relleno
 	Label fillLabel = new Label("Relleno");
 	ColorPicker fillColorPicker1 = new ColorPicker();
 	ColorPicker fillColorPicker2 = new ColorPicker();
-
 	// Border
 	Label strokeLabel = new Label("Borde");
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
-
 	// Actions
 	Label actionLabel = new Label("Acciones");
 
-	List<Map.Entry<ToggleButton, Consumer<Drawable>>> actionButtons = List.of(
-			Map.entry(new ToggleButton("Duplicar"), f -> {
-				Drawable duplicatedFigure = f.getCopy();
-				duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-				this.figureFeaturesMap.put(duplicatedFigure, this.figureFeaturesMap.get(f).getCopy());
-				canvasState.addFigure(duplicatedFigure);
-			}),
-
-			Map.entry(new ToggleButton("Dividir"), f -> {
-				Drawable[] dividedFigures = f.split();
-				for (Drawable newFigure : dividedFigures) {
-					this.figureFeaturesMap.put(newFigure, this.figureFeaturesMap.get(f).getCopy());
-					canvasState.addFigure(newFigure);
-				};
-				this.figureFeaturesMap.remove(f);
-				canvasState.deleteFigure(f);
-			}),
-
-			Map.entry(new ToggleButton("Mov. Centro"), f -> {
-				f.moveTo(CANVAS_WIDTH / 2.0, CANVAS_HEIGHT / 2.0);
-			})
-	);
+	ToggleButton duplicateButton = new ToggleButton("Duplicar");
+	ToggleButton divideButton = new ToggleButton("Dividir");
+	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+	List<ToggleButton> actionButtons = List.of(duplicateButton, divideButton, moveToCenterButton);
 
 	// Layers
 	Label layerLabel = new Label("Capas");
@@ -123,9 +86,6 @@ public class PaintPane extends BorderPane {
 
 	// Dibujar una figura
 	Point startPoint;
-
-	// StatusBar
-	StatusPane statusPane;
 	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
 			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
 			Map.entry(circleButton,		DrawableCircle::createFromPoints),
@@ -133,10 +93,7 @@ public class PaintPane extends BorderPane {
 			Map.entry(ellipseButton, 	DrawableEllipse::createFromPoints)
 	);
 
-	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
-		this.canvasState = canvasState;
-		this.statusPane = statusPane;
-
+	public PaintPane() {
 		List<ToggleButton> toolsArr = new ArrayList<>();
 		toolsArr.add(selectionButton);
 		toolsArr.addAll(figureButtons.stream().map(Map.Entry::getKey).toList());
@@ -146,24 +103,20 @@ public class PaintPane extends BorderPane {
 				Map.entry(shadeOptions, Shade.NOSHADE),
 				Map.entry(strokeOptions, Stroke.NORMAL)
 		);
-		
-		assignDefaultValues();
-		layers.addAll(canvasState.getLayers());
-		layerOptions.setValue(canvasState.getLayers().getFirst());
 
 		ToggleGroup tools = new ToggleGroup();
 		ToggleGroup actions = new ToggleGroup();
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
-		sideButtons.addAll(actionButtons.stream().map(Map.Entry::getKey).toList());
+		sideButtons.addAll(actionButtons);
 
 		// Set toggle groups
 		toolsArr.forEach(tool -> { tool.setToggleGroup(tools); });
-		actionButtons.forEach(e -> { e.getKey().setToggleGroup(actions); });
+		actionButtons.forEach(e -> { e.setToggleGroup(actions); });
 
 		// Set all the minWidth and Cursors
-		Stream.of(toolsArr.stream(), actionButtons.stream().map(Map.Entry::getKey))
+		Stream.of(toolsArr.stream(), actionButtons.stream())
 				.flatMap(Function.identity())
 				.forEach(tool -> {
 					tool.setMinWidth(TOOL_MIN_WIDTH);
@@ -188,45 +141,21 @@ public class PaintPane extends BorderPane {
 
 		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, layerOptions, showButton, hideButton, addLayerButton, deleteLayerButton));
 
-		setCurrentLayerMode();
-
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
 		topBox.setPadding(new Insets(OFFSETS_VALUE));
 		topBox.setStyle(BOX_BACKGROUND_COLOR);
 		topBox.setAlignment(Pos.CENTER);
 
-		this.bindComboBoxToSelectedFigure(fillColorPicker1, FigureFeatures::setColor1);
-		this.bindComboBoxToSelectedFigure(fillColorPicker2, FigureFeatures::setColor2);
-		this.bindChoiceBoxToSelectedFigure(shadeOptions, FigureFeatures::setShade);
-		this.bindChoiceBoxToSelectedFigure(strokeOptions, FigureFeatures::setStroke);
-		this.bindSliderToSelectedFigure(strokeWidth, FigureFeatures::setStrokeWidth);
-
-		this.bindButtonToSelectedFigure(deleteButton, f -> {
-			canvasState.deleteFigure(f);
-			selectedFigure = Optional.empty();
-		});
-
-		actionButtons.forEach(x -> this.bindButtonToSelectedFigure(x.getKey(), x.getValue()));
-
-		layerOptions.setOnAction( event -> {
-			canvasState.setCurrentLayer(layerOptions.getValue());
-			setCurrentLayerMode();
-		});
-
-		this.bindButtonToRedraw(showButton, () -> setCurrentLayerMode(true));
-		this.bindButtonToRedraw(hideButton, () -> setCurrentLayerMode(false));
-		this.bindButtonToLayerAction(addLayerButton, canvasState::addLayer);
-		this.bindButtonToLayerActionAndRedraw(deleteLayerButton, canvasState::deleteLayer);
 
 		setTop(topBox);
 		setLeft(buttonsBox);
 		setRight(canvas);
 	}
 
-	void redrawCanvas() {
+	void redrawCanvas(Iterable<Drawable> figures, Map<Drawable, FigureFeatures> figureFeaturesMap, Optional<Drawable> selectedFigure) {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		for(Drawable figure : canvasState.figures()) {
+		for(Drawable figure : figures) {
 			// Get all the figures features
 			FigureFeatures features = figureFeaturesMap.get(figure);
 
@@ -242,25 +171,5 @@ public class PaintPane extends BorderPane {
 			// Draw the figure
 			figure.draw(gc);
 		}
-	}
-
-	void showValues(Optional<Drawable> selectedFigure){
-		selectedFigure.ifPresentOrElse(f -> {
-			FigureFeatures features = figureFeaturesMap.get(f);
-			assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
-		}, this::assignDefaultValues);
-	}
-
-	private void assignValues(Shade shade, Color color1, Color color2, double width, Stroke stroke){
-		shadeOptions.setValue(shade);
-		fillColorPicker1.setValue(color1);
-		fillColorPicker2.setValue(color2);
-		strokeWidth.setValue(width);
-		strokeOptions.setValue(stroke);
-		showButton.setSelected(true);
-	}
-
-	private void assignDefaultValues(){
-		assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
 	}
 }
