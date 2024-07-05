@@ -50,17 +50,19 @@ public class PaintPane extends BorderPane {
 	// Shade
 	Label shadeLabel = new Label("Sombra");
 	ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
+
 	// Selector de color de relleno
 	Label fillLabel = new Label("Relleno");
 	ColorPicker fillColorPicker1 = new ColorPicker();
 	ColorPicker fillColorPicker2 = new ColorPicker();
+
 	// Border
 	Label strokeLabel = new Label("Borde");
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
+
 	// Actions
 	Label actionLabel = new Label("Acciones");
-
 	ToggleButton duplicateButton = new ToggleButton("Duplicar");
 	ToggleButton divideButton = new ToggleButton("Dividir");
 	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
@@ -140,19 +142,6 @@ public class PaintPane extends BorderPane {
 	void redrawCanvas(Iterable<Drawable> figures) {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : figures) {
-			// Get all the figures features
-			FigureFeatures features = figure.getFeatures();
-
-			// Draw the corresponding shade type
-			features.getShade().drawShade(gc, figure, features.getColor1() );
-
-			// Set the gradient fill
-			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
-
-			// Set stroke
-			features.getStroke().setStroke(gc, features.getStrokeWidth(), features.isSelected());
-			
-			// Draw the figure
 			figure.draw(gc);
 		}
 	}

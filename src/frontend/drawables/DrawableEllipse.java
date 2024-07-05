@@ -22,7 +22,7 @@ public class DrawableEllipse extends Ellipse implements RadiallyColored {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void drawShape(GraphicsContext gc) {
         gc.strokeOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
         gc.fillOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
     }

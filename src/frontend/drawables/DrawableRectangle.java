@@ -22,7 +22,7 @@ public class DrawableRectangle extends Rectangle implements LinearlyColored {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void drawShape(GraphicsContext gc) {
         gc.fillRect(this.getTopLeft().getX(), this.getTopLeft().getY(),
                 Math.abs(this.getTopLeft().getX() - this.getBottomRight().getX()), Math.abs(this.getTopLeft().getY() - this.getBottomRight().getY()));
         gc.strokeRect(this.getTopLeft().getX(), this.getTopLeft().getY(),

@@ -23,7 +23,7 @@ public class DrawableCircle extends Circle implements RadiallyColored {
         this.features = features;
     }
 
-    public void draw(GraphicsContext gc) {
+    public void drawShape(GraphicsContext gc) {
         double diameter = this.getRadius() * 2;
         gc.fillOval(this.getCenterPoint().getX() - this.getRadius(), this.getCenterPoint().getY() - this.getRadius(), diameter, diameter);
         gc.strokeOval(this.getCenterPoint().getX() - this.getRadius(), this.getCenterPoint().getY() - this.getRadius(), diameter, diameter);
