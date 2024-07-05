@@ -87,6 +87,7 @@ public class Controller {
             duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
             this.getFeaturesMap().put(duplicatedFigure, this.getFeaturesMap().get(f).getCopy());
             this.state.addFigure(duplicatedFigure);
+            this.setSelectedFigure(duplicatedFigure);
         });
 
         this.bindButtonToSelectedFigure(this.paintPane.divideButton, (f) -> {
@@ -97,6 +98,7 @@ public class Controller {
             }
             this.getFeaturesMap().remove(f);
             this.getState().deleteFigure(f);
+            this.setSelectedFigure(dividedFigures[dividedFigures.length - 1]);
         });
 
         this.bindButtonToSelectedFigure(this.paintPane.moveToCenterButton, f -> f.moveTo(this.paintPane.CANVAS_WIDTH / 2.0, this.paintPane.CANVAS_HEIGHT / 2.0));
@@ -117,6 +119,17 @@ public class Controller {
     }
     public Optional<Drawable> getSelectedFigure() {
         return Optional.ofNullable(this.selectedFigure);
+    }
+    public void setSelectedFigure(Drawable f) {
+        this.getSelectedFigure().ifPresent(c -> {
+            if (figureFeaturesMap.get(c) != null) {
+                figureFeaturesMap.get(c).setSelected(false);
+            }
+        });
+        this.selectedFigure = f;
+        if (f != null) {
+            figureFeaturesMap.get(f).setSelected(true);
+        }
     }
     private Point pointFromEvent(MouseEvent event) {
         return new Point(event.getX(), event.getY());
@@ -162,10 +175,7 @@ public class Controller {
         if(this.selectionMode()) {
             Optional<Drawable> aux = this.getSelectedFigure();
             aux.ifPresent(drawable -> figureFeaturesMap.get(drawable).setSelected(false));
-            this.selectedFigure = state.intersectingFigures(location).findFirst().orElse(null);
-            if(selectedFigure != null){
-                figureFeaturesMap.get(selectedFigure).setSelected(true);
-            }
+            this.setSelectedFigure(state.intersectingFigures(location).findFirst().orElse(null));
             this.showValues();
             this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap);
         }
