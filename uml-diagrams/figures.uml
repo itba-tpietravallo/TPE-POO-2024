@@ -1,0 +1,74 @@
+@startuml
+
+package "Backend" {
+  class Point {}
+  
+  interface Movable {
+    +double getX();
+    +double getY();
+    +void moveTo(double x, double y);
+    +default void move(double diffX, double diffY);
+  }
+  interface Figure {
+    +pointBelongs(Point p);
+  }
+  Movable <|-- Figure
+
+  class Rectangle {
+    -Point topLeft, bottomRight;
+  }
+  class Square {}
+  class Ellipse {
+    -Point centerPoint;
+    -double sMayorAxis, sMinorAxis;
+  }
+  class Circle {
+    +double getRadius();
+  }
+
+  Ellipse <|-- Circle
+  Rectangle <|-- Square
+
+  Figure <|-- Ellipse
+  Figure <|-- Rectangle
+
+  Point -* Ellipse
+  Point -* Rectangle
+
+  package "Model" {
+    class CanvasState<T extends Figure> {} 
+  }
+}
+
+package "Frontend" {
+  class FigureFeatures { }
+  interface Drawable {
+    +FigureFeatures getFeatures();
+    +void setFeatures(FigureFeatures features);
+    +{abstract}default void draw();
+  }
+
+  Figure <|- Drawable
+
+  class DrawableRectangle {}
+  class DrawableSquare {}
+  class DrawableEllipse {}
+  class DrawableCircle {}
+
+  Circle <|-- DrawableCircle
+  Rectangle <|-- DrawableRectangle
+  Square <|-- DrawableSquare
+  Ellipse <|-- DrawableEllipse
+
+  Drawable <|-- DrawableCircle
+  Drawable <|-- DrawableRectangle
+  Drawable <|-- DrawableSquare
+  Drawable <|-- DrawableEllipse
+
+  DrawableCircle *-- FigureFeatures
+  DrawableRectangle *-- FigureFeatures
+  DrawableSquare *-- FigureFeatures
+  DrawableEllipse *-- FigureFeatures
+}
+
+@enduml
