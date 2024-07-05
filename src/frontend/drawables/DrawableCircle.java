@@ -2,13 +2,25 @@ package frontend.drawables;
 
 import backend.model.Circle;
 import backend.model.Point;
+import frontend.features.FigureFeatures;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 public class DrawableCircle extends Circle implements RadiallyColored {
+    private FigureFeatures features;
     public DrawableCircle(Point centerPoint, double radius) {
         super(centerPoint, radius);
+    }
+
+    @Override
+    public FigureFeatures getFeatures(){
+        return this.features;
+    }
+
+    @Override
+    public void setFeatures(FigureFeatures features){
+        this.features = features;
     }
 
     public void draw(GraphicsContext gc) {

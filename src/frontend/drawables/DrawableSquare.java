@@ -2,11 +2,23 @@ package frontend.drawables;
 
 import backend.model.Point;
 import backend.model.Square;
+import frontend.features.FigureFeatures;
 import javafx.scene.canvas.GraphicsContext;
 
 public class DrawableSquare extends Square implements LinearlyColored {
+    private FigureFeatures features;
     public DrawableSquare(Point topLeft, double size) {
         super(topLeft, size);
+    }
+
+    @Override
+    public FigureFeatures getFeatures(){
+        return this.features;
+    }
+
+    @Override
+    public void setFeatures(FigureFeatures features){
+        this.features = features;
     }
 
     @Override
