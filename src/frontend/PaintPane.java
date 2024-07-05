@@ -15,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -138,11 +137,11 @@ public class PaintPane extends BorderPane {
 		setRight(canvas);
 	}
 
-	void redrawCanvas(Iterable<Drawable> figures, Map<Drawable, FigureFeatures> figureFeaturesMap) {
+	void redrawCanvas(Iterable<Drawable> figures) {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : figures) {
 			// Get all the figures features
-			FigureFeatures features = figureFeaturesMap.get(figure);
+			FigureFeatures features = figure.getFeatures();
 
 			// Draw the corresponding shade type
 			features.getShade().drawShade(gc, figure, features.getColor1() );

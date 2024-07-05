@@ -3,6 +3,7 @@ package backend;
 import backend.model.Figure;
 import backend.model.Layer;
 import backend.model.Point;
+import frontend.drawables.Drawable;
 
 import java.util.*;
 import java.util.stream.Stream;

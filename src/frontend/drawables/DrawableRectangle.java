@@ -2,11 +2,23 @@ package frontend.drawables;
 
 import backend.model.Point;
 import backend.model.Rectangle;
+import frontend.features.FigureFeatures;
 import javafx.scene.canvas.GraphicsContext;
 
 public class DrawableRectangle extends Rectangle implements LinearlyColored {
+    private FigureFeatures features;
     public DrawableRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight);
+    }
+
+    @Override
+    public FigureFeatures getFeatures(){
+        return this.features;
+    }
+
+    @Override
+    public void setFeatures(FigureFeatures features){
+        this.features = features;
     }
 
     @Override
