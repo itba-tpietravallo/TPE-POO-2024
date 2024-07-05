@@ -2,7 +2,7 @@ package frontend;
 
 import backend.CanvasState;
 import backend.model.Point;
-import frontend.drawables.Drawable;
+import frontend.drawables.*;
 import frontend.features.FigureFeatures;
 import frontend.features.Shade;
 import frontend.features.Stroke;
@@ -13,10 +13,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class Controller {
     CanvasState<Drawable> state;
@@ -27,6 +30,7 @@ public class Controller {
     // Features by figure map
     Map<Drawable, FigureFeatures> figureFeaturesMap = new HashMap<>();
     Point startPoint;
+    Point endPoint;
 
     // Default fill colors
     private static final Color DEFAULT_FILL_COLOR_1 = Color.CYAN;
@@ -38,11 +42,19 @@ public class Controller {
     private static final int DEFAULT_STROKE_WIDTH = 5;
     // Duplicate offset
     private static final int DUPLICATE_OFFSET = 12;
+    List<Map.Entry<ToggleButton, BiFunction<Point,Point,Drawable>>> figureButtonsToActions;
 
     public Controller(CanvasState<Drawable> state, StatusPane statusPane, PaintPane pane) {
         this.state = state;
         this.statusPane = statusPane;
         this.paintPane = pane;
+
+        this.figureButtonsToActions = List.of(
+                Map.entry(this.paintPane.rectangleButton,	DrawableRectangle::createFromPoints),
+                Map.entry(this.paintPane.circleButton,		DrawableCircle::createFromPoints),
+                Map.entry(this.paintPane.squareButton, 	DrawableSquare::createFromPoints),
+                Map.entry(this.paintPane.ellipseButton, 	DrawableEllipse::createFromPoints)
+        );
 
         this.paintPane.canvas.setOnMouseClicked(this::onMouseClicked);
         this.paintPane.canvas.setOnMouseMoved(this::onMouseMoved);
@@ -120,9 +132,7 @@ public class Controller {
             return ;
         }
 
-        this.paintPane.figureButtons
-                .stream()
-                .filter(e -> e.getKey().isSelected())
+        figureButtonsToActions.stream().filter(e -> e.getKey().isSelected())
                 .map(e -> e.getValue().apply(startPoint, endPoint))
                 .findFirst()
                 .ifPresent(f -> {

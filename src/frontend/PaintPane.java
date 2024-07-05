@@ -76,32 +76,38 @@ public class PaintPane extends BorderPane {
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
 	ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
 
-	List<Map.Entry<ToggleButton, BiFunction<Point, Point, Drawable>>> figureButtons =  List.of(
-			Map.entry(rectangleButton,	DrawableRectangle::createFromPoints),
-			Map.entry(circleButton,		DrawableCircle::createFromPoints),
-			Map.entry(squareButton, 	DrawableSquare::createFromPoints),
-			Map.entry(ellipseButton, 	DrawableEllipse::createFromPoints)
+	List<ToggleButton> figureButtons =  List.of(
+			rectangleButton,
+			circleButton,
+			squareButton,
+			ellipseButton
 	);
 
 	public PaintPane() {
+		// Side panel UI
 		List<ToggleButton> toolsArr = new ArrayList<>();
 		toolsArr.add(selectionButton);
-		toolsArr.addAll(figureButtons.stream().map(Map.Entry::getKey).toList());
+		toolsArr.addAll(figureButtons);
 		toolsArr.add(deleteButton);
 
-		Map<ChoiceBox<?>, ?> choiceBoxes = Map.ofEntries(
-				Map.entry(shadeOptions, Shade.NOSHADE),
-				Map.entry(strokeOptions, Stroke.NORMAL)
-		);
-
-		ToggleGroup tools = new ToggleGroup();
-		ToggleGroup actions = new ToggleGroup();
+		Stream.of(
+				shadeOptions,
+				strokeOptions
+		).forEach(e -> e.setMinWidth(TOOL_MIN_WIDTH));
 
 		Collection<Node> sideButtons = new ArrayList<>(toolsArr);
 		sideButtons.addAll(List.of(shadeLabel, shadeOptions, fillLabel, fillColorPicker1, fillColorPicker2, strokeLabel, strokeWidth, strokeOptions, actionLabel));
 		sideButtons.addAll(actionButtons);
 
+		VBox buttonsBox = new VBox(VBOX_SPACING);
+		buttonsBox.getChildren().addAll(sideButtons);
+		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
+		buttonsBox.setStyle(BOX_BACKGROUND_COLOR);
+		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
+
 		// Set toggle groups
+		ToggleGroup tools = new ToggleGroup();
+		ToggleGroup actions = new ToggleGroup();
 		toolsArr.forEach(tool -> tool.setToggleGroup(tools));
 		actionButtons.forEach(e -> e.setToggleGroup(actions));
 
@@ -113,30 +119,19 @@ public class PaintPane extends BorderPane {
 					tool.setCursor(Cursor.HAND);
 				});
 
-		for (Map.Entry<ChoiceBox<?>, ?> e : choiceBoxes.entrySet()) {
-			e.getKey().setMinWidth(TOOL_MIN_WIDTH);
-		}
-
-		VBox buttonsBox = new VBox(VBOX_SPACING);
-		buttonsBox.getChildren().addAll(sideButtons);
-
 		strokeWidth.setMin(STROKE_MIN);
 		strokeWidth.setMax(STROKE_MAX);
 		strokeWidth.setShowTickLabels(true);
 
-		buttonsBox.setPadding(new Insets(OFFSETS_VALUE));
-		buttonsBox.setStyle(BOX_BACKGROUND_COLOR);
-		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
 		gc.setLineWidth(VBOX_LINE_WIDTH);
 
+		// Top Section UI
 		Collection<Node> topButtons = new ArrayList<>(List.of(layerLabel, layerOptions, showButton, hideButton, addLayerButton, deleteLayerButton));
-
 		HBox topBox = new HBox(VBOX_SPACING);
 		topBox.getChildren().addAll(topButtons);
 		topBox.setPadding(new Insets(OFFSETS_VALUE));
 		topBox.setStyle(BOX_BACKGROUND_COLOR);
 		topBox.setAlignment(Pos.CENTER);
-
 
 		setTop(topBox);
 		setLeft(buttonsBox);
