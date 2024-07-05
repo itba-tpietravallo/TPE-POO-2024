@@ -112,9 +112,7 @@ public class Controller {
         return Optional.ofNullable(this.selectedFigure);
     }
     public void setSelectedFigure(Drawable f) {
-        this.getSelectedFigure().ifPresent(c -> {
-                c.getFeatures().setSelected(false);
-        });
+        this.getSelectedFigure().ifPresent(c -> c.getFeatures().setSelected(false));
         this.selectedFigure = f;
         if (f != null) {
             f.getFeatures().setSelected(true);
