@@ -4,8 +4,7 @@ import backend.CanvasState;
 import frontend.drawables.Drawable;
 import javafx.scene.layout.VBox;
 
-public class MainFrame<T extends Drawable> extends VBox {
-
+public class MainFrame extends VBox {
     public MainFrame(CanvasState<Drawable> canvasState) {
         StatusPane statusPane = new StatusPane();
         PaintPane paintPane = new PaintPane();
@@ -15,5 +14,4 @@ public class MainFrame<T extends Drawable> extends VBox {
         getChildren().add(paintPane);
         getChildren().add(statusPane);
     }
-
 }
