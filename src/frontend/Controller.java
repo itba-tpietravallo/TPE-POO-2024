@@ -172,7 +172,7 @@ public class Controller {
     private void onMouseClicked(MouseEvent event) {
         Point location = this.pointFromEvent(event);
         this.updateStatusLabel(location, FIGURE_NOT_FOUND_MESSAGE);
-        if(this.selectionMode() && this.state.getCurrentLayer().isVisible()) {
+        if(this.selectionMode()) {
             Optional<Drawable> aux = this.getSelectedFigure();
             aux.ifPresent(drawable -> drawable.getFeatures().setSelected(false));
             this.setSelectedFigure(state.intersectingFigures(location).findFirst().orElse(null));
