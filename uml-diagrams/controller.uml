@@ -1,52 +1,83 @@
 @startuml
 
 package "Backend" {
-  class Point {}
+  class Layer<T>{
+    -List<T> figures;
+    +List<T> figures();
+    +void addFigure(T elem);
+    +void deleteFigure(T elem);
+  }
   interface Figure {
   }
 
-  class CanvasState {}
+  package "Model" {
+    class CanvasState<T extends Figure> {
+      -List<Layer<T>> layers;
+      +CanvasState();
+      +void setCurrentLayer(Layer<T> l);
+      +Layer<T> getCurrentLayer();
+      +List<Layer<T>> getLayers();
+      +void addLayer();
+      +void deleteLayer();
+      +void addFigure(T figure);
+      +void deleteFigure(T figure);
+      +Iterable<T> figures();
+      +Stream<T> intersectingFigures(Point location);
+      +Optional<T> intersectsAnyFigure(Point location);
+    }
+  }
+
+  CanvasState *-- Layer
 }
 
 package "Frontend" {
-  interface Drawable {
+  interface Drawable {}
+
+  package "Controller " {
+    class Controller {
+      Point startPoint;
+
+      Controller(CanvasState<Drawable> state, StatusPane sPane, PaintPane p);
+
+      -void assignDefaultValues();
+   
+      -void onMouseMoved();
+      -void onMouseClicked();
+      -void onMouseDragged();
+      -void onMouseReleased();
+      -void onMousePressed();
+      ... More functions used to bind functionality... ...
+    }
   }
 
-class Controller {
-Point startPoint;
-Point endPoint;
+  package "View" {
+    class PaintPane {
+      +void redrawCanvas(Iterable<Drawable> figures);
 
-+void onMouseMoved();
-+void onMouseClicked();
-+void onMouseDragged();
-+void onMouseReleased();
-+void onMousePressed();
-}
+      ToggleButton selectionButton;
+      ToggleButton rectangleButton;
+      ... More UI Elements... ...
+    }
+  }
 
-class FigureFeatures {}
+  class MainFrame { }
 
-class PaintPane {
- Map<Drawable, FigureFeatures> figureFeaturesMap;
-}
+  class StatusPane { }
 
-class MainFrame {
+  class AppLauncher { }
 
-}
+  class AppMenuBar { }
 
-class StatusPane {
-
-}
-
-
-MainFrame *-- PaintPane
-MainFrame *-- StatusPane
-MainFrame *-- Controller
-Drawable <|-- Figure
-PaintPane *-- FigureFeatures
-Controller *- Drawable
-Controller .. CanvasState
-Controller .. PaintPane
-Controller .. StatusPane
+  MainFrame *-- PaintPane
+  MainFrame *-- StatusPane
+  MainFrame *-- Controller
+  AppLauncher *-- MainFrame
+  AppLauncher *-- AppMenuBar
+  AppLauncher *-- CanvasState
+  Drawable <|-- Figure
+  Controller .. CanvasState : controls
+  Controller .. PaintPane : controls
+  Controller .. StatusPane : controls
 }
 
 @enduml
