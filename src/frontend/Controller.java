@@ -230,8 +230,11 @@ public class Controller {
     private void bindButtonToRedraw(ButtonBase button, Runnable action) {
         button.setOnAction((x) -> { action.run(); this.paintPane.redrawCanvas(state.figures()); });
     }
-    private void bindButtonToSelectedFigure(ButtonBase button, Consumer<Drawable> action) {
-        button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
+    private void bindButtonToSelectedFigure(ToggleButton button, Consumer<Drawable> action) {
+        button.setOnAction(evt -> {
+            this.runAndRedrawIfSelectedFigurePresent(action).handle(evt);
+            button.setSelected(false);
+        });
     }
     private <T> void bindComboBoxToSelectedFigure(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
         box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), box.getValue())));
