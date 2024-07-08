@@ -14,7 +14,7 @@ rm "$ZIP_FILE_NAME" &> /dev/null
 rm "$ZIP_FILE_NAME.zip" &> /dev/null
 
 # Create a zip file containing all necessary files
-zip -r "$ZIP_FILE_NAME.zip" . -x *.idea* -x *out\* *uml-diagrams\* -x *.iml* -x *.DS_Store* -x *createZIP.sh* -x "$ZIP_FILE_NAME.zip" -x *$ZIP_FILE_NAME* | egrep 'warning' &> /dev/null
+zip -r "$ZIP_FILE_NAME.zip" . -x *.idea* -x *out\* -x *.iml* -x *.DS_Store* -x *createZIP.sh* -x "$ZIP_FILE_NAME.zip" -x *$ZIP_FILE_NAME* | egrep 'warning' &> /dev/null
 all_files_found="$?"
 if [ "$all_files_found" -eq "0" ]; then
     echo "Some files were not found. Exiting..."
