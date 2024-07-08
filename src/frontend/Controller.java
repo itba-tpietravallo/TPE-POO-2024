@@ -108,6 +108,7 @@ public class Controller {
         this.bindButtonToRedraw(this.paintPane.hideButton, () -> {
             this.paintPane.selectionButton.setSelected(false);
             this.deselectFigure();
+            this.assignDefaultValues();
             setCurrentLayerMode(false);
             this.paintPane.redrawCanvas(state.figures());
         });
@@ -261,7 +262,7 @@ public class Controller {
         this.paintPane.fillColorPicker2.setValue(color2);
         this.paintPane.strokeWidth.setValue(width);
         this.paintPane.strokeOptions.setValue(stroke);
-        this.paintPane.showButton.setSelected(true);
+        this.setCurrentLayerMode();
     }
     private void assignDefaultValues(){
         this.assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
@@ -270,6 +271,5 @@ public class Controller {
     private void deselectFigure() {
         this.getSelectedFigure().ifPresent(drawable -> drawable.getFeatures().setSelected(false));
         this.selectedFigure = null;
-        this.assignDefaultValues();
     }
 }
