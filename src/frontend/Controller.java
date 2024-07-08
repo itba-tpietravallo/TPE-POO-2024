@@ -107,6 +107,7 @@ public class Controller {
         this.bindButtonToRedraw(this.paintPane.hideButton, () -> setCurrentLayerMode(false));
         this.bindButtonToLayerAction(this.paintPane.addLayerButton, this.state::addLayer);
         this.bindButtonToLayerActionAndRedraw(this.paintPane.deleteLayerButton, this.state::deleteLayer);
+        this.bindFigureButtonstoDeselection();
 
         this.setCurrentLayerMode();
         this.assignDefaultValues();
@@ -233,6 +234,18 @@ public class Controller {
     }
     private void bindSliderToSelectedFigure(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
         slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), slider.getValue())));
+    }
+    private void bindFigureButtonstoDeselection() {
+        List<ToggleButton> figureButtons =
+                List.of(this.paintPane.circleButton, this.paintPane.ellipseButton,
+                        this.paintPane.rectangleButton, this.paintPane.squareButton);
+        for (ToggleButton button : figureButtons) {
+            button.setOnAction( event ->{
+                this.getSelectedFigure().ifPresent(drawable -> drawable.getFeatures().setSelected(false));
+                this.selectedFigure = null;
+                this.paintPane.redrawCanvas(state.figures());
+            });
+        }
     }
     void showValues(){
         getSelectedFigure().ifPresentOrElse(f -> {
