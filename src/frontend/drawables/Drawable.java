@@ -23,6 +23,5 @@ public interface Drawable extends Figure, Copiable<Drawable>, Splitable {
     void drawShape(GraphicsContext gc);
     Paint getFill(Color color1, Color color2);
     void setFeatures(FigureFeatures features);
-    //cambiar para que haya un draw
     FigureFeatures getFeatures();
 }
