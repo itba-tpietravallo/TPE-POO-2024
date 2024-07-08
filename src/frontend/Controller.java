@@ -105,7 +105,12 @@ public class Controller {
         this.bindButtonToSelectedFigure(this.paintPane.moveToCenterButton, f -> f.moveTo(this.paintPane.CANVAS_WIDTH / 2.0, this.paintPane.CANVAS_HEIGHT / 2.0));
 
         this.bindButtonToRedraw(this.paintPane.showButton, () -> setCurrentLayerMode(true));
-        this.bindButtonToRedraw(this.paintPane.hideButton, () -> setCurrentLayerMode(false));
+        this.bindButtonToRedraw(this.paintPane.hideButton, () -> {
+            this.paintPane.selectionButton.setSelected(false);
+            this.deselectFigure();
+            setCurrentLayerMode(false);
+            this.paintPane.redrawCanvas(state.figures());
+        });
         this.bindButtonToLayerAction(this.paintPane.addLayerButton, this.state::addLayer);
         this.bindButtonToLayerActionAndRedraw(this.paintPane.deleteLayerButton, this.state::deleteLayer);
         this.bindFigureButtonstoDeselection();
@@ -166,7 +171,7 @@ public class Controller {
     private void onMouseClicked(MouseEvent event) {
         Point location = this.pointFromEvent(event);
         this.updateStatusLabel(location, FIGURE_NOT_FOUND_MESSAGE);
-        if(this.selectionMode()) {
+        if(this.selectionMode() && this.state.getCurrentLayer().isVisible()) {
             Optional<Drawable> aux = this.getSelectedFigure();
             aux.ifPresent(drawable -> drawable.getFeatures().setSelected(false));
             this.setSelectedFigure(state.intersectingFigures(location).findFirst().orElse(null));
@@ -239,8 +244,7 @@ public class Controller {
     private void bindFigureButtonstoDeselection() {
         for (ToggleButton button : this.paintPane.figureButtons) {
             button.setOnAction( event -> {
-                this.getSelectedFigure().ifPresent(drawable -> drawable.getFeatures().setSelected(false));
-                this.selectedFigure = null;
+                this.deselectFigure();
                 this.paintPane.redrawCanvas(state.figures());
             });
         }
@@ -261,5 +265,11 @@ public class Controller {
     }
     private void assignDefaultValues(){
         this.assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
+    }
+
+    private void deselectFigure() {
+        this.getSelectedFigure().ifPresent(drawable -> drawable.getFeatures().setSelected(false));
+        this.selectedFigure = null;
+        this.assignDefaultValues();
     }
 }
