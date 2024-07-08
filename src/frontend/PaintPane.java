@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -22,24 +23,24 @@ public class PaintPane extends BorderPane {
 	//Canvas dimensions
 	final int CANVAS_WIDTH = 800, CANVAS_HEIGHT = 600;
 
-	//Tool width
+	// Tool width
 	private static final int TOOL_MIN_WIDTH = 90;
 
-	//VBox features
+	// VBox and Hbox features
 	private static final int VBOX_SPACING = 10, VBOX_PREF_WIDTH = 100, VBOX_LINE_WIDTH = 1;
 	private static final String BOX_BACKGROUND_COLOR = "-fx-background-color: #999";
 
-	//Insets offsets value
+	// Insets offsets value
 	private static final int OFFSETS_VALUE = 5;
 
 	// Stroke dimensions
 	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
 
-	// Canvas y relacionados
+	// Canvas
 	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 
-	// Botones Barra Izquierda
+	// Figure buttons and others
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
 	ToggleButton rectangleButton = new ToggleButton("Rectángulo");
 	ToggleButton circleButton = new ToggleButton("Círculo");
@@ -51,16 +52,15 @@ public class PaintPane extends BorderPane {
 	Label shadeLabel = new Label("Sombra");
 	ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
 
-	// Selector de color de relleno
+	// Color picker
 	Label fillLabel = new Label("Relleno");
 	ColorPicker fillColorPicker1 = new ColorPicker();
 	ColorPicker fillColorPicker2 = new ColorPicker();
 
-	// Border
+	// Stroke
 	Label strokeLabel = new Label("Borde");
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
-
 	// Actions
 	Label actionLabel = new Label("Acciones");
 	ToggleButton duplicateButton = new ToggleButton("Duplicar");

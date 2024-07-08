@@ -12,12 +12,14 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class Controller {
     CanvasState<Drawable> state;
@@ -25,7 +27,11 @@ public class Controller {
     PaintPane paintPane;
     // Currently selected figure (maybe null)
     Drawable selectedFigure = null;
+    // Features by figure map
+    Map<Drawable, FigureFeatures> figureFeaturesMap = new HashMap<>();
     Point startPoint;
+    Point endPoint;
+
     // Default fill colors
     private static final Color DEFAULT_FILL_COLOR_1 = Color.CYAN;
     private static final Color DEFAULT_FILL_COLOR_2 = Color.web("ccffcc");
