@@ -1,0 +1,63 @@
+@startuml
+
+package "Backend" {
+    interface Copiable<T> {
+        +T getCopy();
+    }
+}
+
+package "JavaFX" {
+    class Color {}
+}
+
+package "Front" {
+    enum Shade {
+        NOSHADE,
+        SIMPLE,
+        SIMPLEINVERTED,
+        COLORED,
+        COLOREDINVERTED;
+        +Shade(int offset, boolean useDefaultColor, String name);
+
+        +void drawShade(GraphicsContext gc);
+    }
+
+    enum Stroke {
+        NOSTROKE,
+        NORMAL,
+        SIMPLE,
+        COMPLEX;
+        +Stroke(double[] spacing, String name);
+
+        +void setStroke(GraphicsContext gc, double strokeWidth, boolean isSelected);
+        +void setStroke(GraphicsContext gc);
+        +Color getColor(boolean isSelected);
+    }
+
+    class FigureFeatures {
+        +FigureFeatures(Color color1, Color color2, Shade shadeType, double strokeWidth, Stroke stroke);
+
+        +Shade getShade();
+        +Color getColor1();
+        +Color getColor2();
+        +double getStrokeWidth();
+        +Stroke getStroke();
+        +FigureFeatures getCopy();
+        +boolean isSelected();
+        
+        +void setColor1(Color color1);
+        +void setColor2(Color color2);
+        +void setShade(Shade shade);
+        +void setStrokeWidth(double strokeWidth);
+        +void setStroke(Stroke stroke);
+        +void setSelected(boolean selected);
+    }
+
+    Copiable <|-- FigureFeatures
+    FigureFeatures *-- JavaFX.Color
+    FigureFeatures *-- Shade
+    FigureFeatures *-- Stroke
+
+}
+
+@enduml
