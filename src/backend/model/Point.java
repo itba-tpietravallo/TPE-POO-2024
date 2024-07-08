@@ -13,16 +13,8 @@ public class Point implements Movable, Copiable<Point>{
         return x;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
     public double getY() {
         return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
     }
 
     public void move(double diffX, double diffY) {
@@ -30,10 +22,7 @@ public class Point implements Movable, Copiable<Point>{
     }
 
     @Override
-    public void moveTo(double x, double y) {
-        this.x = x;
-        this.y = y;
-    }
+    public void moveTo(double x, double y) { this.x = x; this.y = y;}
 
     @Override
     public Point getCopy(){
@@ -44,5 +33,4 @@ public class Point implements Movable, Copiable<Point>{
     public String toString() {
         return String.format("{%.2f , %.2f}", x, y);
     }
-
 }
