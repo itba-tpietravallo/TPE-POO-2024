@@ -3,6 +3,7 @@ package frontend;
 import backend.model.*;
 import frontend.drawables.*;
 import frontend.features.*;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -15,7 +16,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -61,6 +61,7 @@ public class PaintPane extends BorderPane {
 	Label strokeLabel = new Label("Borde");
 	Slider strokeWidth = new Slider();
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
+
 	// Actions
 	Label actionLabel = new Label("Acciones");
 	ToggleButton duplicateButton = new ToggleButton("Duplicar");
@@ -77,6 +78,7 @@ public class PaintPane extends BorderPane {
 	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
 	ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
 
+	// Figure buttons
 	List<ToggleButton> figureButtons =  List.of(
 			rectangleButton,
 			circleButton,

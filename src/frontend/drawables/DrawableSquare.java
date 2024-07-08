@@ -3,9 +3,8 @@ package frontend.drawables;
 import backend.model.Point;
 import backend.model.Square;
 import frontend.features.FigureFeatures;
-import javafx.scene.canvas.GraphicsContext;
 
-public class DrawableSquare extends Square implements LinearlyColored {
+public class DrawableSquare extends Square implements RenderAsRectangle {
     private FigureFeatures features;
     public DrawableSquare(Point topLeft, double size) {
         super(topLeft, size);
@@ -19,14 +18,6 @@ public class DrawableSquare extends Square implements LinearlyColored {
     @Override
     public void setFeatures(FigureFeatures features){
         this.features = features;
-    }
-
-    @Override
-    public void drawShape(GraphicsContext gc) {
-        gc.fillRect(this.getTopLeft().getX(), this.getTopLeft().getY(),
-                Math.abs(this.getTopLeft().getX() - this.getBottomRight().getX()), Math.abs(this.getTopLeft().getY() - this.getBottomRight().getY()));
-        gc.strokeRect(this.getTopLeft().getX(), this.getTopLeft().getY(),
-                Math.abs(this.getTopLeft().getX() - this.getBottomRight().getX()), Math.abs(this.getTopLeft().getY() - this.getBottomRight().getY()));
     }
 
     public static DrawableSquare createFromPoints(Point start, Point end) {

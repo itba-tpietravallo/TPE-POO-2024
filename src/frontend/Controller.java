@@ -6,6 +6,7 @@ import frontend.drawables.*;
 import frontend.features.FigureFeatures;
 import frontend.features.Shade;
 import frontend.features.Stroke;
+
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
@@ -19,31 +20,32 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class Controller {
-    CanvasState<Drawable> state;
-    StatusPane statusPane;
-    PaintPane paintPane;
-    // Currently selected figure (maybe null)
-    Drawable selectedFigure = null;
-    // Features by figure map
-    Map<Drawable, FigureFeatures> figureFeaturesMap = new HashMap<>();
-    Point startPoint;
-    Point endPoint;
-
     // Default fill colors
     private static final Color DEFAULT_FILL_COLOR_1 = Color.CYAN;
-    private static final Color DEFAULT_FILL_COLOR_2 = Color.web("ccffcc");
+    private static final Color DEFAULT_FILL_COLOR_2 = Color.PURPLE;
+
     // Default shade
     private static final Shade DEFAULT_SHADE = Shade.NOSHADE;
+
     // Default stroke
     private static final Stroke DEFAULT_STROKE_TYPE = Stroke.NORMAL;
     private static final int DEFAULT_STROKE_WIDTH = 5;
+
     // Duplicate offset
     private static final int DUPLICATE_OFFSET = 12;
+
     // No figure message
     private static final String FIGURE_NOT_FOUND_MESSAGE = "Ninguna figura encontrada";
+
+    CanvasState<Drawable> state;
+    StatusPane statusPane;
+    PaintPane paintPane;
+
+    // Currently selected figure (may be null)
+    Drawable selectedFigure = null;
+    Point startPoint;
     List<Map.Entry<ToggleButton, BiFunction<Point,Point,Drawable>>> figureButtonsToActions;
 
     public Controller(CanvasState<Drawable> state, StatusPane statusPane, PaintPane pane) {
@@ -71,17 +73,17 @@ public class Controller {
         this.bindSliderToSelectedFigure(this.paintPane.strokeWidth, FigureFeatures::setStrokeWidth);
 
         this.bindButtonToSelectedFigure(this.paintPane.deleteButton, f -> {
-            this.state.deleteFigure(f);
+            this.getState().deleteFigure(f);
             this.selectedFigure = null;
         });
 
         this.paintPane.layerOptions.setOnAction( event -> {
-            this.state.setCurrentLayer(this.paintPane.layerOptions.getValue());
+            this.getState().setCurrentLayer(this.paintPane.layerOptions.getValue());
             this.setCurrentLayerMode();
         });
 
-        this.paintPane.layers.addAll(state.getLayers());
-        this.paintPane.layerOptions.setValue(state.getLayers().getFirst());
+        this.paintPane.layers.addAll(this.getState().getLayers());
+        this.paintPane.layerOptions.setValue(this.getState().getLayers().getFirst());
 
         this.bindButtonToSelectedFigure(this.paintPane.duplicateButton, (f) -> {
             Drawable duplicatedFigure = f.getCopy();
@@ -203,7 +205,7 @@ public class Controller {
         this.paintPane.hideButton.setSelected(!visible);
     }
     private <T extends Event> EventHandler<T> runAndRedrawIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
-        return (event) -> getSelectedFigure().ifPresent(f -> {
+        return (event) -> this.getSelectedFigure().ifPresent(f -> {
             figureConsumer.accept(f);
             this.paintPane.redrawCanvas(state.figures());
         });
@@ -248,7 +250,7 @@ public class Controller {
         }
     }
     void showValues(){
-        getSelectedFigure().ifPresentOrElse(f -> {
+        this.getSelectedFigure().ifPresentOrElse(f -> {
             FigureFeatures features = f.getFeatures();
             this.assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
         }, this::assignDefaultValues);

@@ -26,4 +26,3 @@ public interface Drawable extends Figure, Copiable<Drawable>, Splitable {
     //cambiar para que haya un draw
     FigureFeatures getFeatures();
 }
-

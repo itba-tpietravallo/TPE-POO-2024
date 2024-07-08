@@ -46,4 +46,3 @@ public class Point implements Movable, Copiable<Point>{
     }
 
 }
-

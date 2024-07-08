@@ -4,7 +4,6 @@ import javafx.scene.paint.*;
 
 
 public class FigureFeatures implements Copiable<FigureFeatures> {
-
     private Color color1;
     private Color color2;
     private Shade shade;

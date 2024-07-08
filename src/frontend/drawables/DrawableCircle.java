@@ -3,11 +3,10 @@ package frontend.drawables;
 import backend.model.Circle;
 import backend.model.Point;
 import frontend.features.FigureFeatures;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-public class DrawableCircle extends Circle implements RadiallyColored {
+public class DrawableCircle extends Circle implements RenderAsOval {
     private FigureFeatures features;
     public DrawableCircle(Point centerPoint, double radius) {
         super(centerPoint, radius);
@@ -23,15 +22,9 @@ public class DrawableCircle extends Circle implements RadiallyColored {
         this.features = features;
     }
 
-    public void drawShape(GraphicsContext gc) {
-        double diameter = this.getRadius() * 2;
-        gc.fillOval(this.getCenterPoint().getX() - this.getRadius(), this.getCenterPoint().getY() - this.getRadius(), diameter, diameter);
-        gc.strokeOval(this.getCenterPoint().getX() - this.getRadius(), this.getCenterPoint().getY() - this.getRadius(), diameter, diameter);
-    }
-
     @Override
     public Paint getFill(Color color1, Color color2) {
-        return RadiallyColored.super.getFill(color1, color2);
+        return RenderAsOval.super.getFill(color1, color2);
     }
 
     public static DrawableCircle createFromPoints(Point start, Point end) {
