@@ -237,11 +237,8 @@ public class Controller {
         slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), slider.getValue())));
     }
     private void bindFigureButtonstoDeselection() {
-        List<ToggleButton> figureButtons =
-                List.of(this.paintPane.circleButton, this.paintPane.ellipseButton,
-                        this.paintPane.rectangleButton, this.paintPane.squareButton);
-        for (ToggleButton button : figureButtons) {
-            button.setOnAction( event ->{
+        for (ToggleButton button : this.paintPane.figureButtons) {
+            button.setOnAction( event -> {
                 this.getSelectedFigure().ifPresent(drawable -> drawable.getFeatures().setSelected(false));
                 this.selectedFigure = null;
                 this.paintPane.redrawCanvas(state.figures());
