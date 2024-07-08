@@ -8,42 +8,32 @@ public class AppMenuBar extends MenuBar {
 
     public AppMenuBar() {
         Menu file = new Menu("Archivo");
-
         MenuItem exitMenuItem = new MenuItem("Salir");
-        this.bindExitMenuItem(exitMenuItem);
+        bindMenuItemToAlert(exitMenuItem, Alert.AlertType.CONFIRMATION, "Salir", "Salir de la aplicacion", "¿Está seguro que desea salir de la aplicación?", () -> { System.exit(0); });
+
         file.getItems().add(exitMenuItem);
-
         Menu help = new Menu("Ayuda");
-
         MenuItem aboutMenuItem = new MenuItem("Acerca De");
-        this.bindAboutMenuItem(aboutMenuItem);
-        help.getItems().add(aboutMenuItem);
 
+        bindMenuItemToAlert(aboutMenuItem, Alert.AlertType.INFORMATION, "Acerca De", "Paint", "TPE Final POO Julio 2024", () -> {});
+
+        help.getItems().add(aboutMenuItem);
         getMenus().addAll(file, help);
     }
 
-    private void bindExitMenuItem(MenuItem item){
+    private void bindMenuItemToAlert(MenuItem item, Alert.AlertType type, String title, String header, String contextText, Runnable actionOK) {
         item.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Salir");
-            alert.setHeaderText("Salir de la aplicación");
-            alert.setContentText("¿Está seguro que desea salir de la aplicación?");
+            Alert alert = new Alert(type);
+            alert.setTitle(title);
+            alert.setHeaderText(header);
+            alert.setContentText(contextText);
             Optional<ButtonType> result = alert.showAndWait();
             if(result.isPresent()) {
                 if (result.get() == ButtonType.OK) {
-                    System.exit(0);
+                    actionOK.run();
                 }
             }
         });
     }
 
-    private void bindAboutMenuItem(MenuItem item){
-        item.setOnAction(event -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Acerca De");
-            alert.setHeaderText("Paint");
-            alert.setContentText("TPE Final POO Julio 2024");
-            alert.showAndWait();
-        });
-    }
 }
