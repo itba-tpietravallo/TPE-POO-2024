@@ -42,6 +42,8 @@ public class Controller {
     private static final int DEFAULT_STROKE_WIDTH = 5;
     // Duplicate offset
     private static final int DUPLICATE_OFFSET = 12;
+    // No figure message
+    private static final String FIGURE_NOT_FOUND_MESSAGE = "Ninguna figura encontrada";
     List<Map.Entry<ToggleButton, BiFunction<Point,Point,Drawable>>> figureButtonsToActions;
 
     public Controller(CanvasState<Drawable> state, StatusPane statusPane, PaintPane pane) {
@@ -70,13 +72,12 @@ public class Controller {
 
         this.bindButtonToSelectedFigure(this.paintPane.deleteButton, f -> {
             this.state.deleteFigure(f);
-            figureFeaturesMap.remove(f);
-            selectedFigure = null;
+            this.selectedFigure = null;
         });
 
         this.paintPane.layerOptions.setOnAction( event -> {
             this.state.setCurrentLayer(this.paintPane.layerOptions.getValue());
-            setCurrentLayerMode();
+            this.setCurrentLayerMode();
         });
 
         this.paintPane.layers.addAll(state.getLayers());
@@ -85,18 +86,19 @@ public class Controller {
         this.bindButtonToSelectedFigure(this.paintPane.duplicateButton, (f) -> {
             Drawable duplicatedFigure = f.getCopy();
             duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
-            this.getFeaturesMap().put(duplicatedFigure, this.getFeaturesMap().get(f).getCopy());
-            this.state.addFigure(duplicatedFigure);
+            duplicatedFigure.setFeatures(f.getFeatures().getCopy());
+            this.getState().addFigure(duplicatedFigure);
+            this.setSelectedFigure(duplicatedFigure);
         });
 
         this.bindButtonToSelectedFigure(this.paintPane.divideButton, (f) -> {
             Drawable[] dividedFigures = f.split();
             for (Drawable newFigure : dividedFigures) {
-                this.getFeaturesMap().put(newFigure, this.getFeaturesMap().get(f).getCopy());
+                newFigure.setFeatures(f.getFeatures().getCopy());
                 this.getState().addFigure(newFigure);
             }
-            this.getFeaturesMap().remove(f);
             this.getState().deleteFigure(f);
+            this.setSelectedFigure(dividedFigures[dividedFigures.length - 1]);
         });
 
         this.bindButtonToSelectedFigure(this.paintPane.moveToCenterButton, f -> f.moveTo(this.paintPane.CANVAS_WIDTH / 2.0, this.paintPane.CANVAS_HEIGHT / 2.0));
@@ -106,17 +108,21 @@ public class Controller {
         this.bindButtonToLayerAction(this.paintPane.addLayerButton, this.state::addLayer);
         this.bindButtonToLayerActionAndRedraw(this.paintPane.deleteLayerButton, this.state::deleteLayer);
 
-        setCurrentLayerMode();
-        assignDefaultValues();
+        this.setCurrentLayerMode();
+        this.assignDefaultValues();
     }
     public CanvasState<Drawable> getState() {
         return this.state;
     }
-    public Map<Drawable, FigureFeatures> getFeaturesMap() {
-        return this.figureFeaturesMap;
-    }
     public Optional<Drawable> getSelectedFigure() {
         return Optional.ofNullable(this.selectedFigure);
+    }
+    public void setSelectedFigure(Drawable f) {
+        this.getSelectedFigure().ifPresent(c -> c.getFeatures().setSelected(false));
+        this.selectedFigure = f;
+        if (f != null) {
+            f.getFeatures().setSelected(true);
+        }
     }
     private Point pointFromEvent(MouseEvent event) {
         return new Point(event.getX(), event.getY());
@@ -143,31 +149,27 @@ public class Controller {
                             this.paintPane.strokeWidth.getValue(),
                             this.paintPane.strokeOptions.getValue()
                     );
-
-                    figureFeaturesMap.put(f, features);
-                    state.addFigure(f);
-                    startPoint = null;
-                    this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap);
+                    f.setFeatures(features);
+                    this.state.addFigure(f);
+                    this.startPoint = null;
+                    this.paintPane.redrawCanvas(state.figures());
                 });
     }
     private void onMousePressed(MouseEvent event) {
-        startPoint = this.pointFromEvent(event);
+        this.startPoint = this.pointFromEvent(event);
     }
     private void onMouseMoved(MouseEvent event) {
-        updateStatusLabel(pointFromEvent(event));
+        this.updateStatusLabel(pointFromEvent(event));
     }
     private void onMouseClicked(MouseEvent event) {
         Point location = this.pointFromEvent(event);
-        this.updateStatusLabel(location, "Ninguna figura encontrada");
+        this.updateStatusLabel(location, FIGURE_NOT_FOUND_MESSAGE);
         if(this.selectionMode()) {
             Optional<Drawable> aux = this.getSelectedFigure();
-            aux.ifPresent(drawable -> figureFeaturesMap.get(drawable).setSelected(false));
-            this.selectedFigure = state.intersectingFigures(location).findFirst().orElse(null);
-            if(selectedFigure != null){
-                figureFeaturesMap.get(selectedFigure).setSelected(true);
-            }
+            aux.ifPresent(drawable -> drawable.getFeatures().setSelected(false));
+            this.setSelectedFigure(state.intersectingFigures(location).findFirst().orElse(null));
             this.showValues();
-            this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap);
+            this.paintPane.redrawCanvas(state.figures());
         }
     }
     private void onMouseDragged(MouseEvent event) {
@@ -175,14 +177,14 @@ public class Controller {
             Point eventPoint = this.pointFromEvent(event);
             double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
             double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-            getSelectedFigure().ifPresent(f -> { f.move(diffX, diffY); this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap); });
+            this.getSelectedFigure().ifPresent(f -> { f.move(diffX, diffY); this.paintPane.redrawCanvas(state.figures()); });
         }
     }
     private void updateStatusLabel(Point location) {
         this.updateStatusLabel(location, location.toString());
     }
     private void updateStatusLabel(Point location, String defaultText) {
-        state.intersectsAnyFigure(location).ifPresentOrElse(x -> statusPane.updateStatus(
+        this.state.intersectsAnyFigure(location).ifPresentOrElse(x -> statusPane.updateStatus(
                 state.intersectingFigures(location)
                         .map(Drawable::toString)
                         .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString()
@@ -192,7 +194,7 @@ public class Controller {
         return this.paintPane.selectionButton.isSelected();
     }
     private void setCurrentLayerMode(){
-        setCurrentLayerMode(this.state.getCurrentLayer().isVisible());
+        this.setCurrentLayerMode(this.state.getCurrentLayer().isVisible());
     }
     private void setCurrentLayerMode(boolean visible) {
         this.state.getCurrentLayer().setVisible(visible);
@@ -202,7 +204,7 @@ public class Controller {
     private <T extends Event> EventHandler<T> runAndRedrawIfSelectedFigurePresent(Consumer<Drawable> figureConsumer ) {
         return (event) -> getSelectedFigure().ifPresent(f -> {
             figureConsumer.accept(f);
-            this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap);
+            this.paintPane.redrawCanvas(state.figures());
         });
     }
     private void bindButtonToLayerAction(ToggleButton button, Runnable action) {
@@ -210,32 +212,32 @@ public class Controller {
             action.run();
             this.paintPane.layers.setAll(this.state.getLayers());
             this.paintPane.layerOptions.setValue(this.state.getCurrentLayer());
-            setCurrentLayerMode();
+            this.setCurrentLayerMode();
             button.setSelected(false);
         });
     }
     private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
-        this.bindButtonToLayerAction(button, () -> { action.run(); this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap); });
+        this.bindButtonToLayerAction(button, () -> { action.run(); this.paintPane.redrawCanvas(state.figures()); });
     }
     private void bindButtonToRedraw(ButtonBase button, Runnable action) {
-        button.setOnAction((x) -> { action.run(); this.paintPane.redrawCanvas(state.figures(), figureFeaturesMap); });
+        button.setOnAction((x) -> { action.run(); this.paintPane.redrawCanvas(state.figures()); });
     }
     private void bindButtonToSelectedFigure(ButtonBase button, Consumer<Drawable> action) {
         button.setOnAction(this.runAndRedrawIfSelectedFigurePresent(action));
     }
     private <T> void bindComboBoxToSelectedFigure(ComboBoxBase<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-        box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue())));
+        box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), box.getValue())));
     }
     private <T> void bindChoiceBoxToSelectedFigure(ChoiceBox<T> box, BiConsumer<FigureFeatures, T> featureSetter) {
-        box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(this.figureFeaturesMap.get(f), box.getValue())));
+        box.setOnAction(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), box.getValue())));
     }
     private void bindSliderToSelectedFigure(Slider slider, BiConsumer<FigureFeatures, Double> featureSetter) {
-        slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(this.figureFeaturesMap.get(f), slider.getValue())));
+        slider.setOnMouseDragged(this.runAndRedrawIfSelectedFigurePresent(f -> featureSetter.accept(f.getFeatures(), slider.getValue())));
     }
     void showValues(){
         getSelectedFigure().ifPresentOrElse(f -> {
-            FigureFeatures features = figureFeaturesMap.get(f);
-            assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
+            FigureFeatures features = f.getFeatures();
+            this.assignValues(features.getShade(), features.getColor1(), features.getColor2(), features.getStrokeWidth(), features.getStroke());
         }, this::assignDefaultValues);
     }
     private void assignValues(Shade shade, Color color1, Color color2, double width, Stroke stroke) {
@@ -247,6 +249,6 @@ public class Controller {
         this.paintPane.showButton.setSelected(true);
     }
     private void assignDefaultValues(){
-        assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
+        this.assignValues(DEFAULT_SHADE, DEFAULT_FILL_COLOR_1, DEFAULT_FILL_COLOR_2, DEFAULT_STROKE_WIDTH, DEFAULT_STROKE_TYPE);
     }
 }

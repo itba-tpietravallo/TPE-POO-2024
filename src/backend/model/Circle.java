@@ -20,6 +20,6 @@ public class Circle extends Ellipse {
     }
     @Override
     public double[] divideAxis(){
-        return new double[]{this.getRadius() / 2};
+        return new double[]{ this.getRadius() / 2 };
     }
 }

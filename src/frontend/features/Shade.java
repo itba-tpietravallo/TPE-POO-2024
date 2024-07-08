@@ -29,7 +29,7 @@ public enum Shade {
         gc.setFill( this.useDefaultColor ? DEFAULT_COLOR : figureColor.darker());
         figure.move(this.offset, this.offset);
         SHADE_STROKE.setStroke(gc);
-        figure.draw(gc);
+        figure.drawShape(gc);
         figure.move(-this.offset, -this.offset);
     }
     @Override

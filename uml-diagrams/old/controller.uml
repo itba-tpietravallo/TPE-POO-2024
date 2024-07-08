@@ -1,0 +1,52 @@
+@startuml
+
+package "Backend" {
+  class Point {}
+  interface Figure {
+  }
+
+  class CanvasState {}
+}
+
+package "Frontend" {
+  interface Drawable {
+  }
+
+class Controller {
+Point startPoint;
+Point endPoint;
+
++void onMouseMoved();
++void onMouseClicked();
++void onMouseDragged();
++void onMouseReleased();
++void onMousePressed();
+}
+
+class FigureFeatures {}
+
+class PaintPane {
+ Map<Drawable, FigureFeatures> figureFeaturesMap;
+}
+
+class MainFrame {
+
+}
+
+class StatusPane {
+
+}
+
+
+MainFrame *-- PaintPane
+MainFrame *-- StatusPane
+MainFrame *-- Controller
+Drawable <|-- Figure
+PaintPane *-- FigureFeatures
+Controller *- Drawable
+Controller .. CanvasState
+Controller .. PaintPane
+Controller .. StatusPane
+}
+
+@enduml

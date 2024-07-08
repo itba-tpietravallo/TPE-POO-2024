@@ -63,7 +63,6 @@ public class PaintPane extends BorderPane {
 	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
 	// Actions
 	Label actionLabel = new Label("Acciones");
-
 	ToggleButton duplicateButton = new ToggleButton("Duplicar");
 	ToggleButton divideButton = new ToggleButton("Dividir");
 	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
@@ -140,22 +139,9 @@ public class PaintPane extends BorderPane {
 		setRight(canvas);
 	}
 
-	void redrawCanvas(Iterable<Drawable> figures, Map<Drawable, FigureFeatures> figureFeaturesMap) {
+	void redrawCanvas(Iterable<Drawable> figures) {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		for(Drawable figure : figures) {
-			// Get all the figures features
-			FigureFeatures features = figureFeaturesMap.get(figure);
-
-			// Draw the corresponding shade type
-			features.getShade().drawShade(gc, figure, features.getColor1() );
-
-			// Set the gradient fill
-			gc.setFill(figure.getFill(features.getColor1(), features.getColor2()));
-
-			// Set stroke
-			features.getStroke().setStroke(gc, features.getStrokeWidth(), features.isSelected());
-			
-			// Draw the figure
 			figure.draw(gc);
 		}
 	}

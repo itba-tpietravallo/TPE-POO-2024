@@ -2,15 +2,27 @@ package frontend.drawables;
 
 import backend.model.Ellipse;
 import backend.model.Point;
+import frontend.features.FigureFeatures;
 import javafx.scene.canvas.GraphicsContext;
 
 public class DrawableEllipse extends Ellipse implements RadiallyColored {
+    private FigureFeatures features;
     public DrawableEllipse(Point centerPoint, double sMayorAxis, double sMinorAxis) {
         super(centerPoint, sMayorAxis, sMinorAxis);
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public FigureFeatures getFeatures(){
+        return this.features;
+    }
+
+    @Override
+    public void setFeatures(FigureFeatures features){
+        this.features = features;
+    }
+
+    @Override
+    public void drawShape(GraphicsContext gc) {
         gc.strokeOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
         gc.fillOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
     }

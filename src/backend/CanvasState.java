@@ -3,6 +3,7 @@ package backend;
 import backend.model.Figure;
 import backend.model.Layer;
 import backend.model.Point;
+import frontend.drawables.Drawable;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -70,7 +71,7 @@ public class CanvasState<T extends Figure> {
     public Stream<T> intersectingFigures(Point location) {
         return layers.stream()
                 .sorted(Comparator.reverseOrder())
-                .flatMap(l -> l.figures().stream())
+                .flatMap(l -> l.figures().reversed().stream())
                 .filter(f -> f.pointBelongs(location) );
     }
 
