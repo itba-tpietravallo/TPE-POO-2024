@@ -37,49 +37,49 @@ public class PaintPane extends BorderPane {
 	private static final int STROKE_MIN = 0, STROKE_MAX = 10;
 
 	// Canvas
-	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-	GraphicsContext gc = canvas.getGraphicsContext2D();
+	final Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+	final GraphicsContext gc = canvas.getGraphicsContext2D();
 
 	// Figure buttons and others
-	ToggleButton selectionButton = new ToggleButton("Seleccionar");
-	ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-	ToggleButton circleButton = new ToggleButton("Círculo");
-	ToggleButton squareButton = new ToggleButton("Cuadrado");
-	ToggleButton ellipseButton = new ToggleButton("Elipse");
-	ToggleButton deleteButton = new ToggleButton("Borrar");
+	final ToggleButton selectionButton = new ToggleButton("Seleccionar");
+	final ToggleButton rectangleButton = new ToggleButton("Rectángulo");
+	final ToggleButton circleButton = new ToggleButton("Círculo");
+	final ToggleButton squareButton = new ToggleButton("Cuadrado");
+	final ToggleButton ellipseButton = new ToggleButton("Elipse");
+	final ToggleButton deleteButton = new ToggleButton("Borrar");
 
 	// Shade
-	Label shadeLabel = new Label("Sombra");
-	ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
+	final Label shadeLabel = new Label("Sombra");
+	final ChoiceBox<Shade> shadeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Shade.NOSHADE, Shade.SIMPLE, Shade.COLORED, Shade.SIMPLEINVERTED, Shade.COLOREDINVERTED));
 
 	// Color picker
-	Label fillLabel = new Label("Relleno");
-	ColorPicker fillColorPicker1 = new ColorPicker();
-	ColorPicker fillColorPicker2 = new ColorPicker();
+	final Label fillLabel = new Label("Relleno");
+	final ColorPicker fillColorPicker1 = new ColorPicker();
+	final ColorPicker fillColorPicker2 = new ColorPicker();
 
 	// Stroke
-	Label strokeLabel = new Label("Borde");
-	Slider strokeWidth = new Slider();
-	ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
+	final Label strokeLabel = new Label("Borde");
+	final Slider strokeWidth = new Slider();
+	final ChoiceBox<Stroke> strokeOptions = new ChoiceBox<>(FXCollections.observableArrayList(Stroke.NORMAL, Stroke.SIMPLE, Stroke.COMPLEX));
 
 	// Actions
-	Label actionLabel = new Label("Acciones");
-	ToggleButton duplicateButton = new ToggleButton("Duplicar");
-	ToggleButton divideButton = new ToggleButton("Dividir");
-	ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
-	List<ToggleButton> actionButtons = List.of(duplicateButton, divideButton, moveToCenterButton);
+	final Label actionLabel = new Label("Acciones");
+	final ToggleButton duplicateButton = new ToggleButton("Duplicar");
+	final ToggleButton divideButton = new ToggleButton("Dividir");
+	final ToggleButton moveToCenterButton = new ToggleButton("Mov. Centro");
+	final List<ToggleButton> actionButtons = List.of(duplicateButton, divideButton, moveToCenterButton);
 
 	// Layers
-	Label layerLabel = new Label("Capas");
-	ObservableList<Layer<Drawable>> layers = FXCollections.observableArrayList();
-	ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(layers);
-	RadioButton showButton = new RadioButton("Mostrar");
-	RadioButton hideButton = new RadioButton("Ocultar");
-	ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
-	ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
+	final Label layerLabel = new Label("Capas");
+	final ObservableList<Layer<Drawable>> layers = FXCollections.observableArrayList();
+	final ChoiceBox<Layer<Drawable>> layerOptions = new ChoiceBox<>(layers);
+	final RadioButton showButton = new RadioButton("Mostrar");
+	final RadioButton hideButton = new RadioButton("Ocultar");
+	final ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
+	final ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
 
 	// Figure buttons
-	List<ToggleButton> figureButtons =  List.of(
+	final List<ToggleButton> figureButtons =  List.of(
 			rectangleButton,
 			circleButton,
 			squareButton,

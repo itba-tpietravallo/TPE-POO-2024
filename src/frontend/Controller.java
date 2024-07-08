@@ -38,14 +38,14 @@ public class Controller {
     // No figure message
     private static final String FIGURE_NOT_FOUND_MESSAGE = "Ninguna figura encontrada";
 
-    CanvasState<Drawable> state;
-    StatusPane statusPane;
-    PaintPane paintPane;
+    final CanvasState<Drawable> state;
+    final StatusPane statusPane;
+    final PaintPane paintPane;
 
     // Currently selected figure (may be null)
     Drawable selectedFigure = null;
     Point startPoint;
-    List<Map.Entry<ToggleButton, BiFunction<Point,Point,Drawable>>> figureButtonsToActions;
+    final List<Map.Entry<ToggleButton, BiFunction<Point,Point,Drawable>>> figureButtonsToActions;
 
     public Controller(CanvasState<Drawable> state, StatusPane statusPane, PaintPane pane) {
         this.state = state;
