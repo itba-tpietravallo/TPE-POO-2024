@@ -18,6 +18,7 @@ package "Backend" {
     +boolean pointBelongs(Point p);
   }
   Movable <|-- Figure
+  Movable <|-- Point
 
   class Rectangle {
     -Point topLeft, bottomRight;
