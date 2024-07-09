@@ -9,7 +9,7 @@ public class AppMenuBar extends MenuBar {
     public AppMenuBar() {
         Menu file = new Menu("Archivo");
         MenuItem exitMenuItem = new MenuItem("Salir");
-        bindMenuItemToAlert(exitMenuItem, Alert.AlertType.CONFIRMATION, "Salir", "Salir de la aplicacion", "¿Está seguro que desea salir de la aplicación?", () -> { System.exit(0); });
+        bindMenuItemToAlert(exitMenuItem, Alert.AlertType.CONFIRMATION, "Salir", "Salir de la aplicacion", "¿Está seguro que desea salir de la aplicación?", () -> System.exit(0));
 
         file.getItems().add(exitMenuItem);
         Menu help = new Menu("Ayuda");
