@@ -13,7 +13,11 @@ package "Backend" {
   package "Model" {
     class CanvasState<T extends Figure> {
       -List<Layer<T>> layers;
+      -T selectedFigure;
       +CanvasState();
+      +void setSelectedFigure(T elem);
+      +Optional<T> getSelectedFigure();
+
       +void setCurrentLayer(Layer<T> l);
       +Layer<T> getCurrentLayer();
       +List<Layer<T>> getLayers();
@@ -81,3 +85,4 @@ package "Frontend" {
 }
 
 @enduml
+
