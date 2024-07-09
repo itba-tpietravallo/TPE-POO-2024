@@ -72,7 +72,7 @@ public class Controller {
         this.bindSliderToSelectedFigure(this.paintPane.strokeWidth, FigureFeatures::setStrokeWidth);
 
         this.bindButtonToSelectedFigure(this.paintPane.deleteButton, f -> {
-            this.getState().deleteFigure(f);
+            this.getState().deleteFigure(f, f.getFeatures().getLayerIdx());
             this.selectedFigure = null;
         });
 
@@ -88,6 +88,7 @@ public class Controller {
             Drawable duplicatedFigure = f.getCopy();
             duplicatedFigure.move(DUPLICATE_OFFSET, DUPLICATE_OFFSET);
             duplicatedFigure.setFeatures(f.getFeatures().getCopy());
+            duplicatedFigure.getFeatures().setLayerIdx(this.getState().getCurrentLayer().getLayerId());
             this.getState().addFigure(duplicatedFigure);
             this.setSelectedFigure(duplicatedFigure);
         });
@@ -96,9 +97,10 @@ public class Controller {
             Drawable[] dividedFigures = f.split();
             for (Drawable newFigure : dividedFigures) {
                 newFigure.setFeatures(f.getFeatures().getCopy());
+                newFigure.getFeatures().setLayerIdx(this.getState().getCurrentLayer().getLayerId());
                 this.getState().addFigure(newFigure);
             }
-            this.getState().deleteFigure(f);
+            this.getState().deleteFigure(f, f.getFeatures().getLayerIdx());
             this.setSelectedFigure(dividedFigures[dividedFigures.length - 1]);
         });
 
@@ -155,7 +157,8 @@ public class Controller {
                             this.paintPane.fillColorPicker2.getValue(),
                             this.paintPane.shadeOptions.getValue(),
                             this.paintPane.strokeWidth.getValue(),
-                            this.paintPane.strokeOptions.getValue()
+                            this.paintPane.strokeOptions.getValue(),
+                            this.getState().getCurrentLayer().getLayerId()
                     );
                     f.setFeatures(features);
                     this.state.addFigure(f);

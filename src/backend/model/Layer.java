@@ -23,7 +23,7 @@ public class Layer<T> implements Comparable<Layer<T>> {
     public void setVisible(boolean h) {
         this.visible = h;
     }
-
+    public int getLayerId() { return id; }
     public boolean isVisible() {
         return this.visible;
     }

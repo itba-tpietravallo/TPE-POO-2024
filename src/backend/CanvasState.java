@@ -54,9 +54,11 @@ public class CanvasState<T extends Figure> {
             layer.addFigure(figure);
         }
     }
-
-    public void deleteFigure(T figure) {
-        this.layers.get(currentLayerId).deleteFigure(figure);
+    public void deleteFigure(T figure, int layerId) {
+        layerId -= 1;
+        if (layerId >= 0 && layerId < this.layers.size()) {
+            this.layers.get(layerId).deleteFigure(figure);
+        }
     }
 
     public Iterable<T> figures() {

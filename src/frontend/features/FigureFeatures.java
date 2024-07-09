@@ -10,13 +10,15 @@ public class FigureFeatures implements Copiable<FigureFeatures> {
     private double strokeWidth;
     private Stroke stroke;
     private boolean selected;
+    private int layerIdx;
 
-    public FigureFeatures(Color color1, Color color2, Shade shadeType, double strokeWidth, Stroke stroke){
+    public FigureFeatures(Color color1, Color color2, Shade shadeType, double strokeWidth, Stroke stroke, int layerIdx){
         this.color1 = color1;
         this.color2 = color2;
         this.shade = shadeType;
         this.strokeWidth = strokeWidth;
         this.stroke = stroke;
+        this.layerIdx = layerIdx;
     }
     public Shade getShade() {
         return shade;
@@ -33,6 +35,8 @@ public class FigureFeatures implements Copiable<FigureFeatures> {
     public Stroke getStroke(){
         return stroke;
     }
+    public int getLayerIdx() { return layerIdx; }
+    public void setLayerIdx(int id) { layerIdx = id; }
 
     public boolean isSelected(){
         return selected;
@@ -64,6 +68,6 @@ public class FigureFeatures implements Copiable<FigureFeatures> {
 
     @Override
     public FigureFeatures getCopy(){
-        return new FigureFeatures(color1, color2, shade, strokeWidth, stroke);
+        return new FigureFeatures(color1, color2, shade, strokeWidth, stroke, layerIdx);
     }
 }
